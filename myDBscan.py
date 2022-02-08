@@ -5,16 +5,18 @@ from sklearn import metrics
 from sklearn.datasets import make_blobs
 from sklearn.preprocessing import StandardScaler
 
+dataset_name = "flame"
 
 # Load datasets:
-X = scipy.io.loadmat('/home/arch/Matlab/Dimensionality Reduction/mat_files/coil.mat')
+X = scipy.io.loadmat('/home/arch/Matlab/Dimensionality Reduction/mat_files/flame.mat')
 data = X.get('X')
 labels = X.get('label')
 
-euclidean_distances = scipy.io.loadmat('/home/arch/Matlab/Dimensionality Reduction/mat_files/coil_euclidean_distances.mat')
+
+euclidean_distances = scipy.io.loadmat('/home/arch/Matlab/Dimensionality Reduction/mat_files/flame_euclidean_distances.mat')
 D = euclidean_distances.get('D')
 
-distances = scipy.io.loadmat('/home/arch/Matlab/Dimensionality Reduction/mat_files/d0_distances sin method/coil_d0_distances.mat')
+distances = scipy.io.loadmat('/home/arch/Matlab/Dimensionality Reduction/mat_files/d0_distances sin method/flame_d0_distances.mat')
 d0_distances = distances.get('d0_distances')
 DMAX = distances.get('DMAX')
 DMAX_avg = distances.get('DMAX_avg')
@@ -29,8 +31,9 @@ labels = np.reshape(labels, D.shape[1])
 
 # #########################################################
 # Compute DBSCAN
-distances_interval = np.linspace(Dmin_temp_value, Dmax_temp_value, 20)
-
+distances_interval = np.linspace(Dmin_temp_value, Dmax_temp_value )
+if distances_interval[0] == 0:
+    distances_interval = np.delete(distances_interval,0)
 # Performance measures
 db_classic_homogeneity_score = []
 db_d0_homogeneity_score = []
@@ -69,54 +72,74 @@ import matplotlib.pyplot as plt
 plt.plot(
         distances_interval,
         db_classic_homogeneity_score,
-        "r--",
-        distances_interval,
-        db_d0_homogeneity_score,
-        "b--",
+        "r--", label="classic")
 
+plt.plot(distances_interval,
+        db_d0_homogeneity_score,
+        "b--", label="d0-method")
+
+plt.legend(loc="upper right")
+plt.title("{} - Homogeneity - DBscan".format(dataset_name))
+plt.xlabel("epsilon distances")
+plt.ylabel("homogeneity score")
+plt.show()
+
+
+
+plt.plot(
         distances_interval,
         NMI_classic,
-        "g--",
-
+        "r--", label="classic")
+plt.plot(
         distances_interval,
         NMI_d0,
-        "m--",
+        "b--", label="d0-method")
 
-        markeredgecolor="k",
-        markersize=10,
+        #markeredgecolor="k",
+        #markersize=10,
 
-    )
-plt.title("DBscan")
+plt.legend(loc="upper right")
+plt.title("{} - NMI - DBscan".format(dataset_name))
+plt.xlabel("epsilon distances")
+plt.ylabel("NMI score")
 plt.show()
 
 plt.plot(
         distances_interval,
         RAND_index_classic,
-        "r--",
+        "r--",label="classic")
+plt.plot(
         distances_interval,
         RAND_index_d0,
-        "b--",
+        "b--", label="d0-method")
 
-        markeredgecolor="k",
-        markersize=10,
+        #markeredgecolor="k",
+        #markersize=10,
 
-    )
+
+
+
+plt.legend(loc="upper right")
+plt.title("{} - Rand - DBscan".format(dataset_name))
+plt.xlabel("epsilon distances")
+plt.ylabel("Rand score")
 plt.title("Rand")
 plt.show()
 
 plt.plot(
         distances_interval,
         V_measure_classic,
-        "r--",
+        "r--", label="Classic")
+plt.plot(
         distances_interval,
         V_measure_d0,
-        "b--",
+        "b--", label="d0-method")
 
-        markeredgecolor="k",
-        markersize=10,
+        #markeredgecolor="k",
+        #markersize=10,
 
-    )
-plt.title("Vmeasure")
+plt.legend(loc="upper right")
+plt.title("{} - Vmeasure - DBscan".format(dataset_name))
 plt.show()
 
 print("debugger point")
