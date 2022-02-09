@@ -11,15 +11,15 @@ import matplotlib.pyplot as plt
 dataset_name = "flame"
 
 # Load datasets:
-X = scipy.io.loadmat('/home/arch/Matlab/Dimensionality Reduction/mat_files/flame.mat')
+X = scipy.io.loadmat('/home/arch/Matlab/Dimensionality Reduction/mat_files/Umist.mat')
 data = X.get('X')
 labels = X.get('label')
 
 
-euclidean_distances = scipy.io.loadmat('/home/arch/Matlab/Dimensionality Reduction/mat_files/flame_euclidean_distances.mat')
+euclidean_distances = scipy.io.loadmat('/home/arch/Matlab/Dimensionality Reduction/mat_files/Umist_euclidean_distances.mat')
 D = euclidean_distances.get('D')
 
-distances = scipy.io.loadmat('/home/arch/Matlab/Dimensionality Reduction/mat_files/d0_distances sin method/flame_d0_distances.mat')
+distances = scipy.io.loadmat('/home/arch/Matlab/Dimensionality Reduction/mat_files/d0_distances sin method/Umist_d0_distances.mat')
 d0_distances = distances.get('d0_distances')
 DMAX = distances.get('DMAX')
 DMAX_avg = distances.get('DMAX_avg')
@@ -56,14 +56,14 @@ V_measure_d0 = []
 tsne_classic = TSNE(n_components=2, learning_rate='auto', init='random').fit_transform(data)
 
 # d0-TSNE:
-tsne_d0 = TSNE(n_components=2, learning_rate='auto', init='random', metric= 'precomputed').fit_transform(d0_distances)
+tsne_d0 = TSNE(n_components=2, learning_rate='auto', init='random', metric='precomputed').fit_transform(d0_distances)
 
 # Evaluating TSNE results using DBscan:
 
 db_classic = DBSCAN(eps=5, min_samples=15).fit(tsne_classic)
 db_classic_labels_pred = db_classic.labels_
 
-db_d0 = DBSCAN(eps=5, min_samples=15, metric="precomputed").fit(tsne_d0)
+db_d0 = DBSCAN(eps=5, min_samples=15).fit(tsne_d0)
 db_d0_labels_pred = db_d0.labels_
 
 db_classic_homogeneity_score.append(metrics.homogeneity_score(labels, db_classic_labels_pred))
@@ -81,13 +81,13 @@ V_measure_d0.append(metrics.v_measure_score(labels, db_d0_labels_pred))
 
 
 plt.plot(
-        distances_interval,
-        db_classic_homogeneity_score,
-        "r--", label="classic")
+        tsne_classic[:, 0],
+        tsne_classic[:, 1],
+        "r*", label="classic")
 
-plt.plot(distances_interval,
-        db_d0_homogeneity_score,
-        "b--", label="d0-method")
+plt.plot(tsne_d0[:, 0],
+         tsne_d0[:, 1],
+        "b*", label="d0-method")
 
 plt.legend(loc="upper right")
 plt.title("{} - Homogeneity - DBscan".format(dataset_name))
@@ -97,60 +97,3 @@ plt.show()
 
 
 
-plt.plot(
-        distances_interval,
-        NMI_classic,
-        "r--", label="classic")
-plt.plot(
-        distances_interval,
-        NMI_d0,
-        "b--", label="d0-method")
-
-        #markeredgecolor="k",
-        #markersize=10,
-
-plt.legend(loc="upper right")
-plt.title("{} - NMI - DBscan".format(dataset_name))
-plt.xlabel("epsilon distances")
-plt.ylabel("NMI score")
-plt.show()
-
-plt.plot(
-        distances_interval,
-        RAND_index_classic,
-        "r--",label="classic")
-plt.plot(
-        distances_interval,
-        RAND_index_d0,
-        "b--", label="d0-method")
-
-        #markeredgecolor="k",
-        #markersize=10,
-
-
-
-
-plt.legend(loc="upper right")
-plt.title("{} - Rand - DBscan".format(dataset_name))
-plt.xlabel("epsilon distances")
-plt.ylabel("Rand score")
-plt.title("Rand")
-plt.show()
-
-plt.plot(
-        distances_interval,
-        V_measure_classic,
-        "r--", label="Classic")
-plt.plot(
-        distances_interval,
-        V_measure_d0,
-        "b--", label="d0-method")
-
-        #markeredgecolor="k",
-        #markersize=10,
-
-plt.legend(loc="upper right")
-plt.title("{} - Vmeasure - DBscan".format(dataset_name))
-plt.show()
-
-print("debugger point")
