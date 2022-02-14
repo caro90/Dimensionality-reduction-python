@@ -1,39 +1,9 @@
-import numpy as np
-import scipy.io
 from sklearn.cluster import DBSCAN, OPTICS
 from sklearn import metrics
-from sklearn.datasets import make_blobs
-from sklearn.preprocessing import StandardScaler
+import matplotlib.pyplot as plt
+from loadDatasets import load_datasets
 
-dataset_name = "flame"
-
-# Load datasets:
-X = scipy.io.loadmat('/home/arch/Matlab/Dimensionality Reduction/mat_files/flame.mat')
-data = X.get('X')
-labels = X.get('label')
-
-
-euclidean_distances = scipy.io.loadmat('/home/arch/Matlab/Dimensionality Reduction/mat_files/flame_euclidean_distances.mat')
-D = euclidean_distances.get('D')
-
-distances = scipy.io.loadmat('/home/arch/Matlab/Dimensionality Reduction/mat_files/d0_distances sin method/flame_d0_distances.mat')
-d0_distances = distances.get('d0_distances')
-DMAX = distances.get('DMAX')
-DMAX_avg = distances.get('DMAX_avg')
-d_best = distances.get('d_best')
-
-Dmax_temp_value = np.amax(D)
-
-# In matlab: T=D+eye(size(D)).*Dmax_temp_value;
-T = D + np.diag(np.full(D.shape[1],1)) * Dmax_temp_value
-Dmin_temp_value= np.amin(T)
-labels = np.reshape(labels, D.shape[1])
-
-# #########################################################
-# Compute DBSCAN
-distances_interval = np.linspace(Dmin_temp_value, Dmax_temp_value )
-if distances_interval[0] == 0:
-    distances_interval = np.delete(distances_interval,0)
+datasets_dict = load_datasets()
 # Performance measures
 db_classic_homogeneity_score = []
 db_d0_homogeneity_score = []
@@ -47,99 +17,150 @@ RAND_index_d0 = []
 V_measure_classic = []
 V_measure_d0 = []
 
-for i in distances_interval:
-    # Classic DBscan classic:
-    db_classic = DBSCAN(eps=i, min_samples=15).fit(data)
-    db_classic_labels_pred = db_classic.labels_
-    # D0 DBscan:
-    db_d0 = DBSCAN(eps=i, min_samples=15, metric="precomputed").fit(d0_distances)
-    db_d0_labels_pred = db_d0.labels_
+# Choose clustering method:
+# - set clustering_method to 1 for DBscan
+# - set clustering_method to 2 for OPTICS
+# - set clustering_method to 3 for commonNN
+# - set clustering_method to 4 for kMedoid
+clustering_method = 1
 
-    db_classic_homogeneity_score.append(metrics.homogeneity_score(labels, db_classic_labels_pred))
-    db_d0_homogeneity_score.append(metrics.homogeneity_score(labels, db_d0_labels_pred))
+# DBSCAN parameter:
+min_pts = 15
 
-    NMI_classic.append(metrics.adjusted_mutual_info_score(labels, db_classic_labels_pred))
-    NMI_d0.append(metrics.adjusted_mutual_info_score(labels, db_d0_labels_pred))
+for i in datasets_dict["distances_interval"]:
 
-    RAND_index_classic.append(metrics.rand_score(labels, db_classic_labels_pred))
-    RAND_index_d0.append(metrics.rand_score(labels, db_d0_labels_pred))
+    if clustering_method == 1:
+        # Classic DBscan approach:
+        db_classic = DBSCAN(eps=i, min_samples=min_pts).fit(datasets_dict["data"])
+        db_classic_labels_pred = db_classic.labels_
+        # d0 DBscan:
+        db_d0 = DBSCAN(eps=i, min_samples=min_pts, metric="precomputed").fit(datasets_dict["d0_distances"])
+        db_d0_labels_pred = db_d0.labels_
 
-    V_measure_classic.append(metrics.v_measure_score(labels, db_classic_labels_pred))
-    V_measure_d0.append(metrics.v_measure_score(labels, db_d0_labels_pred))
+    elif clustering_method == 2:
+        # Classic OPTICS approach
+        db_classic = OPTICS(eps=i, min_samples=5).fit(datasets_dict["data"])
+        db_classic_labels_pred = db_classic.labels_
+        # d0 OPTICS:
+        db_d0 = OPTICS(eps=i, min_samples=15, metric="precomputed").fit(datasets_dict["d0_distances"])
+        db_d0_labels_pred = db_d0.labels_
 
-import matplotlib.pyplot as plt
+    elif clustering_method == 3:
+        pass
+    elif clustering_method == 4:
+        pass
 
-plt.plot(
-        distances_interval,
+    db_classic_homogeneity_score.append(metrics.homogeneity_score(datasets_dict["labels"], db_classic_labels_pred))
+    db_d0_homogeneity_score.append(metrics.homogeneity_score(datasets_dict["labels"], db_d0_labels_pred))
+
+    NMI_classic.append(metrics.adjusted_mutual_info_score(datasets_dict["labels"], db_classic_labels_pred))
+    NMI_d0.append(metrics.adjusted_mutual_info_score(datasets_dict["labels"], db_d0_labels_pred))
+
+    RAND_index_classic.append(metrics.rand_score(datasets_dict["labels"], db_classic_labels_pred))
+    RAND_index_d0.append(metrics.rand_score(datasets_dict["labels"], db_d0_labels_pred))
+
+    V_measure_classic.append(metrics.v_measure_score(datasets_dict["labels"], db_classic_labels_pred))
+    V_measure_d0.append(metrics.v_measure_score(datasets_dict["labels"], db_d0_labels_pred))
+
+# Plotting
+# *******************************************************
+fig, ax = plt.subplots()
+ax.plot(
+        datasets_dict["distances_interval"],
         db_classic_homogeneity_score,
         "r--", label="classic")
 
-plt.plot(distances_interval,
+ax.plot(datasets_dict["distances_interval"],
         db_d0_homogeneity_score,
         "b--", label="d0-method")
 
+
+t = ['d0']
+a = [datasets_dict["d_best"].max()]
+temp = datasets_dict["distances_interval"].tolist()
+temp.append(datasets_dict["d_best"].max())
+temp.sort()
+temp_label = temp
+temp = [int(x) for x in temp]
+t = [str(n) for n in temp]
+
+for i in range(len(t)):
+    if t[i] == str(int(datasets_dict["d_best"].max())):
+        t[i] = 'd0'
+        counter = i
+
+
+#temp.pop(counter-1)
+#t.pop(counter-1)
+
+ax.get_xticklabels()[counter-1].set_color("red")
+plt.xticks(ticks=temp, labels=t)
+
 plt.legend(loc="upper right")
-plt.title("{} - Homogeneity - DBscan".format(dataset_name))
+plt.title("{} - Homogeneity - DBscan".format(datasets_dict["dataset_name"]))
 plt.xlabel("epsilon distances")
 plt.ylabel("homogeneity score")
 plt.show()
 
+# *******************************************************
 
-
-plt.plot(
-        distances_interval,
+fig, ax = plt.subplots()
+ax.plot(
+        datasets_dict["distances_interval"],
         NMI_classic,
         "r--", label="classic")
-plt.plot(
-        distances_interval,
+ax.plot(
+        datasets_dict["distances_interval"],
         NMI_d0,
         "b--", label="d0-method")
 
-        #markeredgecolor="k",
-        #markersize=10,
+ax.get_xticklabels()[counter-1].set_color("red")
+plt.xticks(ticks=temp, labels=t)
 
 plt.legend(loc="upper right")
-plt.title("{} - NMI - DBscan".format(dataset_name))
+plt.title("{} - NMI - DBscan".format(datasets_dict["dataset_name"]))
 plt.xlabel("epsilon distances")
 plt.ylabel("NMI score")
 plt.show()
 
-plt.plot(
-        distances_interval,
+# *******************************************************
+
+fig, ax = plt.subplots(2, 2)
+ax[0, 0].plot(
+        datasets_dict["distances_interval"],
         RAND_index_classic,
-        "r--",label="classic")
-plt.plot(
-        distances_interval,
+        "r--", label="classic")
+ax[0, 0].plot(
+        datasets_dict["distances_interval"],
         RAND_index_d0,
         "b--", label="d0-method")
 
-        #markeredgecolor="k",
-        #markersize=10,
+ax[0, 0].get_xticklabels()[counter-1].set_color("red")
+ax[0, 0].set_xticks(ticks=temp, labels=t)
 
+ax[0, 0].legend(loc="upper right")
+ax[0, 0].set_title("{} - Rand - DBscan".format(datasets_dict["dataset_name"]))
+ax[0, 0].set_xlabel("epsilon distances")
+ax[0, 0].set_ylabel("Rand score")
+#ax[0, 0].show()
 
-
-
-plt.legend(loc="upper right")
-plt.title("{} - Rand - DBscan".format(dataset_name))
-plt.xlabel("epsilon distances")
-plt.ylabel("Rand score")
-plt.title("Rand")
-plt.show()
-
-plt.plot(
-        distances_interval,
+# *******************************************************
+#fig, ax = plt.subplots()
+ax[0, 1].plot(
+        datasets_dict["distances_interval"],
         V_measure_classic,
         "r--", label="Classic")
-plt.plot(
-        distances_interval,
+ax[0, 1].plot(
+        datasets_dict["distances_interval"],
         V_measure_d0,
         "b--", label="d0-method")
 
-        #markeredgecolor="k",
-        #markersize=10,
+
+ax[0, 1].get_xticklabels()[counter-1].set_color("red")
+plt.xticks(ticks=temp, labels=t)
 
 plt.legend(loc="upper right")
-plt.title("{} - Vmeasure - DBscan".format(dataset_name))
+plt.title("{} - Vmeasure - DBscan".format(datasets_dict["dataset_name"]))
+plt.ylabel("Vmeasure score")
+plt.xlabel("epsilon distances")
 plt.show()
-
-print("debugger point")
