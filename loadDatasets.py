@@ -2,16 +2,16 @@ import scipy.io
 import numpy as np
 
 def load_datasets():
-    dataset_name = "coil"
+    dataset_name = "swiss_roll"
     # Load datasets:
-    X = scipy.io.loadmat('/home/arch/Matlab/Dimensionality Reduction/mat_files/coil.mat')
-    data = X.get('X')
-    labels = X.get('label')
+    X = scipy.io.loadmat('/home/arch/Matlab/Dimensionality Reduction/mat_files/{}_dataset.mat'.format(dataset_name))
+    data = X.get('data2')
+    labels = X.get('labels')
 
-    euclidean_distances = scipy.io.loadmat('/home/arch/Matlab/Dimensionality Reduction/mat_files/coil_euclidean_distances.mat')
-    D = euclidean_distances.get('D')
+    euclidean_distances = scipy.io.loadmat('/home/arch/Matlab/Dimensionality Reduction/mat_files/{}_euclidean_distances2D.mat'.format(dataset_name))
+    D = euclidean_distances.get('distances2D')
 
-    distances = scipy.io.loadmat('/home/arch/Matlab/Dimensionality Reduction/mat_files/d0_distances sin method/coil_d0_distances.mat')
+    distances = scipy.io.loadmat('/home/arch/Matlab/Dimensionality Reduction/mat_files/d0_distances sin method/{}_d0_distances2D.mat'.format(dataset_name))
     d0_distances = distances.get('d0_distances')
     DMAX = distances.get('DMAX')
     DMAX_avg = distances.get('DMAX_avg')
@@ -24,7 +24,7 @@ def load_datasets():
     Dmin_temp_value = np.amin(T)
     labels = np.reshape(labels, D.shape[1])
 
-    distances_interval = np.linspace(Dmin_temp_value, Dmax_temp_value, 5)
+    distances_interval = np.linspace(Dmin_temp_value, Dmax_temp_value, 15)
     if distances_interval[0] == 0:
         distances_interval = np.delete(distances_interval, 0)
 
