@@ -7,36 +7,10 @@ from sklearn import metrics
 from sklearn.datasets import make_blobs
 from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
+from loadDatasets import load_datasets
 
-dataset_name = "flame"
+datasets_dict = load_datasets()
 
-# Load datasets:
-X = scipy.io.loadmat('/home/arch/Matlab/Dimensionality Reduction/mat_files/Umist.mat')
-data = X.get('X')
-labels = X.get('label')
-
-
-euclidean_distances = scipy.io.loadmat('/home/arch/Matlab/Dimensionality Reduction/mat_files/Umist_euclidean_distances.mat')
-D = euclidean_distances.get('D')
-
-distances = scipy.io.loadmat('/home/arch/Matlab/Dimensionality Reduction/mat_files/d0_distances sin method/Umist_d0_distances.mat')
-d0_distances = distances.get('d0_distances')
-DMAX = distances.get('DMAX')
-DMAX_avg = distances.get('DMAX_avg')
-d_best = distances.get('d_best')
-
-Dmax_temp_value = np.amax(D)
-
-# In matlab: T=D+eye(size(D)).*Dmax_temp_value;
-T = D + np.diag(np.full(D.shape[1], 1)) * Dmax_temp_value
-Dmin_temp_value = np.amin(T)
-labels = np.reshape(labels, D.shape[1])
-
-# #########################################################
-# Compute DBSCAN
-distances_interval = np.linspace(Dmin_temp_value, Dmax_temp_value )
-if distances_interval[0] == 0:
-    distances_interval = np.delete(distances_interval,0)
 # Performance measures
 db_classic_homogeneity_score = []
 db_d0_homogeneity_score = []
@@ -53,10 +27,10 @@ V_measure_d0 = []
 #test = X['X']
 
 # Classic TSNE classic:
-isomap_classic = Isomap(n_components=2).fit_transform(data)
+isomap_classic = Isomap(n_components=2).fit_transform(datasets_dict["data"])
 
 # d0-TSNE:
-isomap_d0 = TSNE(n_components=2, metric='precomputed').fit_transform(d0_distances)
+isomap_d0 = TSNE(n_components=2, metric='precomputed').fit_transform(datasets_dict["d0_distances"])
 
 # Evaluating TSNE results using DBscan:
 
@@ -66,17 +40,29 @@ db_classic_labels_pred = db_classic.labels_
 db_d0 = DBSCAN(eps=5, min_samples=15).fit(isomap_d0)
 db_d0_labels_pred = db_d0.labels_
 
-db_classic_homogeneity_score.append(metrics.homogeneity_score(labels, db_classic_labels_pred))
-db_d0_homogeneity_score.append(metrics.homogeneity_score(labels, db_d0_labels_pred))
+db_classic_homogeneity_score.append(metrics.homogeneity_score(datasets_dict["labels"], db_classic_labels_pred))
+db_d0_homogeneity_score.append(metrics.homogeneity_score(datasets_dict["labels"], db_d0_labels_pred))
 
-NMI_classic.append(metrics.adjusted_mutual_info_score(labels, db_classic_labels_pred))
-NMI_d0.append(metrics.adjusted_mutual_info_score(labels, db_d0_labels_pred))
+print("Classic homogeneity:", db_classic_homogeneity_score)
+print("d0 homogeneity:", db_d0_homogeneity_score)
 
-RAND_index_classic.append(metrics.rand_score(labels, db_classic_labels_pred))
-RAND_index_d0.append(metrics.rand_score(labels, db_d0_labels_pred))
+NMI_classic.append(metrics.adjusted_mutual_info_score(datasets_dict["labels"], db_classic_labels_pred))
+NMI_d0.append(metrics.adjusted_mutual_info_score(datasets_dict["labels"], db_d0_labels_pred))
 
-V_measure_classic.append(metrics.v_measure_score(labels, db_classic_labels_pred))
-V_measure_d0.append(metrics.v_measure_score(labels, db_d0_labels_pred))
+print("NMI :", NMI_classic)
+print("NMI d0 :", NMI_d0)
+
+RAND_index_classic.append(metrics.rand_score(datasets_dict["labels"], db_classic_labels_pred))
+RAND_index_d0.append(metrics.rand_score(datasets_dict["labels"], db_d0_labels_pred))
+
+print("RAND_index_classic:", RAND_index_classic)
+print("d0 RAND_index_classic:", RAND_index_d0)
+
+V_measure_classic.append(metrics.v_measure_score(datasets_dict["labels"], db_classic_labels_pred))
+V_measure_d0.append(metrics.v_measure_score(datasets_dict["labels"], db_d0_labels_pred))
+
+print("V_measure_classic:", V_measure_classic)
+print("d0 V_measure :", V_measure_d0)
 
 
 
@@ -90,7 +76,7 @@ plt.plot(isomap_d0[:, 0],
         "b*", label="d0-method")
 
 plt.legend(loc="upper right")
-plt.title("{} - Homogeneity - DBscan".format(dataset_name))
+plt.title("{} - Isomap".format(datasets_dict["dataset_name"]))
 plt.xlabel("epsilon distances")
 plt.ylabel("homogeneity score")
 plt.show()

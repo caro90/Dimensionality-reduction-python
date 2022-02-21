@@ -27,6 +27,8 @@ V_measure_d0 = []
 
 
 for i in distances_interval:
+    print("I am i", i)
+
     # Classic DBscan classic:
     db_classic = KMedoids(n_clusters=i).fit(datasets_dict["data"])
     db_classic_labels_pred = db_classic.labels_

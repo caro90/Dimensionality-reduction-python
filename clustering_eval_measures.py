@@ -25,7 +25,7 @@ V_measure_d0 = []
 # - set clustering_method to 2 for OPTICS
 # - set clustering_method to 3 for commonNN
 # - set clustering_method to 4 for kMedoid
-clustering_method = 3
+clustering_method = 1
 
 if clustering_method == 1:
     method_name = "DBSCAN"
@@ -39,7 +39,7 @@ elif clustering_method == 3:
 min_pts = 15
 
 for i in datasets_dict["distances_interval"]:
-
+    print("Iam:", i)
     if clustering_method == 1:
         # Classic DBscan approach:
         db_classic = DBSCAN(eps=i, min_samples=min_pts).fit(datasets_dict["data"])
