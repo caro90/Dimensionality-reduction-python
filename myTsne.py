@@ -8,6 +8,7 @@ from sklearn.datasets import make_blobs
 from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
 from loadDatasets import load_datasets
+import seaborn as sns, matplotlib.pyplot as plt
 
 datasets_dict = load_datasets()
 
@@ -41,15 +42,26 @@ db_d0_labels_pred = db_d0.labels_
 db_classic_homogeneity_score.append(metrics.homogeneity_score(datasets_dict["labels"], db_classic_labels_pred))
 db_d0_homogeneity_score.append(metrics.homogeneity_score(datasets_dict["labels"], db_d0_labels_pred))
 
+print("Classic homogeneity:", db_classic_homogeneity_score)
+print("d0 homogeneity:", db_d0_homogeneity_score)
+
 NMI_classic.append(metrics.adjusted_mutual_info_score(datasets_dict["labels"], db_classic_labels_pred))
 NMI_d0.append(metrics.adjusted_mutual_info_score(datasets_dict["labels"], db_d0_labels_pred))
+
+print("NMI :", NMI_classic)
+print("NMI d0 :", NMI_d0)
 
 RAND_index_classic.append(metrics.rand_score(datasets_dict["labels"], db_classic_labels_pred))
 RAND_index_d0.append(metrics.rand_score(datasets_dict["labels"], db_d0_labels_pred))
 
+print("RAND_index_classic:", RAND_index_classic)
+print("d0 RAND_index_classic:", RAND_index_d0)
+
 V_measure_classic.append(metrics.v_measure_score(datasets_dict["labels"], db_classic_labels_pred))
 V_measure_d0.append(metrics.v_measure_score(datasets_dict["labels"], db_d0_labels_pred))
 
+print("V_measure_classic:", V_measure_classic)
+print("d0 V_measure :", V_measure_d0)
 
 
 plt.plot(
@@ -63,9 +75,29 @@ plt.plot(tsne_d0[:, 0],
 
 plt.legend(loc="upper right")
 plt.title("{} - Tsne".format(datasets_dict["dataset_name"]))
-plt.xlabel("epsilon distances")
-plt.ylabel("homogeneity score")
+#plt.xlabel("epsilon distances")
+#plt.ylabel("homogeneity score")
+plt.show()
+
+plt.scatter(tsne_classic[:, 0],
+         tsne_classic[:, 1], c=datasets_dict["labels"],
+        label="d0-method")
+
+plt.legend(loc="upper right")
+plt.title("{} - Tsne".format(datasets_dict["dataset_name"]))
+#plt.xlabel("epsilon distances")
+#plt.ylabel("homogeneity score")
 plt.show()
 
 
 
+
+plt.scatter(tsne_d0[:, 0],
+         tsne_d0[:, 1], c=datasets_dict["labels"],
+        label="d0-method")
+
+plt.legend(loc="upper right")
+plt.title("{} - Tsne".format(datasets_dict["dataset_name"]))
+#plt.xlabel("epsilon distances")
+#plt.ylabel("homogeneity score")
+plt.show()

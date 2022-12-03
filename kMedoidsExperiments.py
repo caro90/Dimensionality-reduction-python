@@ -8,10 +8,11 @@ from loadDatasets import load_datasets
 
 datasets_dict = load_datasets()
 # #########################################################
-#
-distances_interval = np.linspace(2, 30, 30, dtype=int)
 
-distances_interval = np.round(distances_interval)
+
+num_of_classes = np.linspace(2, 20, 20, dtype=int)
+
+distances_interval = np.round(num_of_classes)
 # Performance measures
 db_classic_homogeneity_score = []
 db_d0_homogeneity_score = []
@@ -26,7 +27,7 @@ V_measure_classic = []
 V_measure_d0 = []
 
 
-for i in distances_interval:
+for i in num_of_classes:
     print("I am i", i)
 
     # Classic DBscan classic:
@@ -53,7 +54,7 @@ for i in distances_interval:
 fig, ax = plt.subplots(2, 2)
 
 ax[0, 0].plot(
-        distances_interval,
+        num_of_classes,
         db_classic_homogeneity_score,
         "r--", label="classic")
 
@@ -64,7 +65,7 @@ ax[0, 0].plot(distances_interval,
 
 t = ['d0']
 a = [datasets_dict["d_best"].max()]
-temp = distances_interval.tolist()
+temp = num_of_classes.tolist()
 temp.append(datasets_dict["d_best"].max())
 temp.sort()
 temp_label = temp
@@ -92,11 +93,11 @@ ax[0, 0].set_ylabel("homogeneity score")
 # *******************************************************
 
 ax[0, 1].plot(
-        distances_interval,
+        num_of_classes,
         NMI_classic,
         "r--", label="classic")
 ax[0, 1].plot(
-        distances_interval,
+        num_of_classes,
         NMI_d0,
         "b--", label="d0-method")
 
@@ -112,11 +113,11 @@ ax[0, 1].set_ylabel("NMI score")
 
 
 ax[1, 0].plot(
-        distances_interval,
+        num_of_classes,
         RAND_index_classic,
         "r--", label="classic")
 ax[1, 0].plot(
-        distances_interval,
+        num_of_classes,
         RAND_index_d0,
         "b--", label="d0-method")
 
@@ -132,11 +133,11 @@ ax[1, 0].set_ylabel("Rand score")
 # *******************************************************
 #fig, ax = plt.subplots()
 ax[1, 1].plot(
-        distances_interval,
+        num_of_classes,
         V_measure_classic,
         "r--", label="Classic")
 ax[1, 1].plot(
-        distances_interval,
+        num_of_classes,
         V_measure_d0,
         "b--", label="d0-method")
 

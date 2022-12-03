@@ -1,229 +1,215 @@
-import time
-import warnings
-
-import numpy as np
+from sklearn.cluster import DBSCAN
+from sklearn import metrics
 import matplotlib.pyplot as plt
+from loadDatasets import load_datasets
+from sklearn.metrics import f1_score
+import numpy as np
+from sklearn.manifold import Isomap
+from pandas import read_csv
 
-from sklearn import cluster, datasets, mixture
-from sklearn.neighbors import kneighbors_graph
-from sklearn.preprocessing import StandardScaler
-from itertools import cycle, islice
 
-np.random.seed(0)
+dataset_name = "coil"
+datasets_dict = load_datasets()
+df = read_csv('coil.csv', delimiter=",", header=None)
+data_coil_isomap = df.values
 
-# ============
-# Generate datasets. We choose the size big enough to see the scalability
-# of the algorithms, but not too big to avoid too long running times
-# ============
-n_samples = 1500
-noisy_circles = datasets.make_circles(n_samples=n_samples, factor=0.5, noise=0.05)
-noisy_moons = datasets.make_moons(n_samples=n_samples, noise=0.05)
-blobs = datasets.make_blobs(n_samples=n_samples, random_state=8)
-no_structure = np.random.rand(n_samples, 2), None
+method_name = "DBSCAN"
 
-# Anisotropicly distributed data
-random_state = 170
-X, y = datasets.make_blobs(n_samples=n_samples, random_state=random_state)
-transformation = [[0.6, -0.6], [-0.4, 0.8]]
-X_aniso = np.dot(X, transformation)
-aniso = (X_aniso, y)
+db_classic_homogeneity_score = []
+db_d0_homogeneity_score = []
+db_isomap_homogeneity_score = []
 
-# blobs with varied variances
-varied = datasets.make_blobs(
-    n_samples=n_samples, cluster_std=[1.0, 2.5, 0.5], random_state=random_state
-)
+NMI_classic = []
+NMI_d0 = []
+NMI_isomap = []
 
-# ============
-# Set up cluster parameters
-# ============
-plt.figure(figsize=(9 * 2 + 3, 13))
-plt.subplots_adjust(
-    left=0.02, right=0.98, bottom=0.001, top=0.95, wspace=0.05, hspace=0.01
-)
+RAND_index_classic = []
+RAND_index_d0 = []
+RAND_index_isomap = []
 
-plot_num = 1
+V_measure_classic = []
+V_measure_d0 = []
+V_measure_isomap = []
 
-default_base = {
-    "quantile": 0.3,
-    "eps": 0.3,
-    "damping": 0.9,
-    "preference": -200,
-    "n_neighbors": 10,
-    "n_clusters": 3,
-    "min_samples": 20,
-    "xi": 0.05,
-    "min_cluster_size": 0.1,
-}
+f1_classic = []
+f1_d0 = []
+f1_isomap = []
 
-datasets = [
-    (
-        noisy_circles,
-        {
-            "damping": 0.77,
-            "preference": -240,
-            "quantile": 0.2,
-            "n_clusters": 2,
-            "min_samples": 20,
-            "xi": 0.25,
-        },
-    ),
-    (noisy_moons, {"damping": 0.75, "preference": -220, "n_clusters": 2}),
-    (
-        varied,
-        {
-            "eps": 0.18,
-            "n_neighbors": 2,
-            "min_samples": 5,
-            "xi": 0.035,
-            "min_cluster_size": 0.2,
-        },
-    ),
-    (
-        aniso,
-        {
-            "eps": 0.15,
-            "n_neighbors": 2,
-            "min_samples": 20,
-            "xi": 0.1,
-            "min_cluster_size": 0.2,
-        },
-    ),
-    (blobs, {}),
-    (no_structure, {}),
-]
 
-for i_dataset, (dataset, algo_params) in enumerate(datasets):
-    # update parameters with dataset-specific values
-    params = default_base.copy()
-    params.update(algo_params)
+min_pts = 15
 
-    X, y = dataset
+isomap_classic = Isomap(n_components=2).fit_transform(datasets_dict["data"])
 
-    # normalize dataset for easier parameter selection
-    X = StandardScaler().fit_transform(X)
+for i in datasets_dict["distances_interval"]:
 
-    # estimate bandwidth for mean shift
-    bandwidth = cluster.estimate_bandwidth(X, quantile=params["quantile"])
+    # db_classic: the result of Dbscan given the self.dist_matrix_ from isomap.py (before dimensionality reduction)
+    db_classic = DBSCAN(eps=i, min_samples=min_pts, metric="precomputed").fit(data_coil_isomap)
+    db_classic_labels_pred = db_classic.labels_
 
-    # connectivity matrix for structured Ward
-    connectivity = kneighbors_graph(
-        X, n_neighbors=params["n_neighbors"], include_self=False
-    )
-    # make connectivity symmetric
-    connectivity = 0.5 * (connectivity + connectivity.T)
+    # db_d0: contains the result of Dbscan given our precomputed d0_distances
+    db_d0 = DBSCAN(eps=i, min_samples=min_pts, metric="precomputed").fit(datasets_dict["d0_distances"])
+    db_d0_labels_pred = db_d0.labels_
 
-    # ============
-    # Create cluster objects
-    # ============
-    ms = cluster.MeanShift(bandwidth=bandwidth, bin_seeding=True)
-    two_means = cluster.MiniBatchKMeans(n_clusters=params["n_clusters"])
-    ward = cluster.AgglomerativeClustering(
-        n_clusters=params["n_clusters"], linkage="ward", connectivity=connectivity
-    )
-    spectral = cluster.SpectralClustering(
-        n_clusters=params["n_clusters"],
-        eigen_solver="arpack",
-        affinity="nearest_neighbors",
-    )
-    dbscan = cluster.DBSCAN(eps=params["eps"])
-    optics = cluster.OPTICS(
-        min_samples=params["min_samples"],
-        xi=params["xi"],
-        min_cluster_size=params["min_cluster_size"],
-    )
-    affinity_propagation = cluster.AffinityPropagation(
-        damping=params["damping"], preference=params["preference"], random_state=0
-    )
-    average_linkage = cluster.AgglomerativeClustering(
-        linkage="average",
-        affinity="cityblock",
-        n_clusters=params["n_clusters"],
-        connectivity=connectivity,
-    )
-    birch = cluster.Birch(n_clusters=params["n_clusters"])
-    gmm = mixture.GaussianMixture(
-        n_components=params["n_clusters"], covariance_type="full"
-    )
+    # db_isomap: contains the result of DBscan on the output of isomap function
+    db_isomap = DBSCAN(eps=i, min_samples=min_pts).fit(isomap_classic)
+    db_isomap_labels_pred = db_isomap.labels_
 
-    clustering_algorithms = (
-        ("MiniBatch\nKMeans", two_means),
-        ("Affinity\nPropagation", affinity_propagation),
-        ("MeanShift", ms),
-        ("Spectral\nClustering", spectral),
-        ("Ward", ward),
-        ("Agglomerative\nClustering", average_linkage),
-        ("DBSCAN", dbscan),
-        ("OPTICS", optics),
-        ("BIRCH", birch),
-        ("Gaussian\nMixture", gmm),
-    )
+    db_classic_homogeneity_score.append(metrics.homogeneity_score(datasets_dict["labels"], db_classic_labels_pred))
+    db_d0_homogeneity_score.append(metrics.homogeneity_score(datasets_dict["labels"], db_d0_labels_pred))
+    db_isomap_homogeneity_score.append(metrics.homogeneity_score(datasets_dict["labels"], db_isomap_labels_pred))
 
-    for name, algorithm in clustering_algorithms:
-        t0 = time.time()
+    NMI_classic.append(metrics.adjusted_mutual_info_score(datasets_dict["labels"], db_classic_labels_pred))
+    NMI_d0.append(metrics.adjusted_mutual_info_score(datasets_dict["labels"], db_d0_labels_pred))
+    NMI_isomap.append(metrics.adjusted_mutual_info_score(datasets_dict["labels"], db_isomap_labels_pred))
 
-        # catch warnings related to kneighbors_graph
-        with warnings.catch_warnings():
-            warnings.filterwarnings(
-                "ignore",
-                message="the number of connected components of the "
-                + "connectivity matrix is [0-9]{1,2}"
-                + " > 1. Completing it to avoid stopping the tree early.",
-                category=UserWarning,
-            )
-            warnings.filterwarnings(
-                "ignore",
-                message="Graph is not fully connected, spectral embedding"
-                + " may not work as expected.",
-                category=UserWarning,
-            )
-            algorithm.fit(X)
+    RAND_index_classic.append(metrics.rand_score(datasets_dict["labels"], db_classic_labels_pred))
+    RAND_index_d0.append(metrics.rand_score(datasets_dict["labels"], db_d0_labels_pred))
+    RAND_index_isomap.append(metrics.rand_score(datasets_dict["labels"], db_isomap_labels_pred))
 
-        t1 = time.time()
-        if hasattr(algorithm, "labels_"):
-            y_pred = algorithm.labels_.astype(int)
-        else:
-            y_pred = algorithm.predict(X)
+    V_measure_classic.append(metrics.v_measure_score(datasets_dict["labels"], db_classic_labels_pred))
+    V_measure_d0.append(metrics.v_measure_score(datasets_dict["labels"], db_d0_labels_pred))
+    V_measure_isomap.append(metrics.v_measure_score(datasets_dict["labels"], db_isomap_labels_pred))
 
-        plt.subplot(len(datasets), len(clustering_algorithms), plot_num)
-        if i_dataset == 0:
-            plt.title(name, size=18)
+    f1_classic.append(f1_score(datasets_dict["labels"], db_classic_labels_pred, average='weighted'))
+    f1_d0.append(f1_score(datasets_dict["labels"], db_d0_labels_pred, average='weighted'))
+    f1_isomap.append(f1_score(datasets_dict["labels"], db_isomap_labels_pred, average='weighted'))
 
-        colors = np.array(
-            list(
-                islice(
-                    cycle(
-                        [
-                            "#377eb8",
-                            "#ff7f00",
-                            "#4daf4a",
-                            "#f781bf",
-                            "#a65628",
-                            "#984ea3",
-                            "#999999",
-                            "#e41a1c",
-                            "#dede00",
-                        ]
-                    ),
-                    int(max(y_pred) + 1),
-                )
-            )
-        )
-        # add black color for outliers (if any)
-        colors = np.append(colors, ["#000000"])
-        plt.scatter(X[:, 0], X[:, 1], s=10, color=colors[y_pred])
+# Plotting
+# *******************************************************
+fig, ax = plt.subplots(2, 2)
 
-        plt.xlim(-2.5, 2.5)
-        plt.ylim(-2.5, 2.5)
-        plt.xticks(())
-        plt.yticks(())
-        plt.text(
-            0.99,
-            0.01,
-            ("%.2fs" % (t1 - t0)).lstrip("0"),
-            transform=plt.gca().transAxes,
-            size=15,
-            horizontalalignment="right",
-        )
-        plot_num += 1
+ax[0, 0].plot(
+    datasets_dict["distances_interval"],
+    db_classic_homogeneity_score,
+    "r--", label="classic")
+
+ax[0, 0].plot(datasets_dict["distances_interval"],
+              db_d0_homogeneity_score,
+              "b--", label="d0-method")
+
+ax[0, 0].plot(datasets_dict["distances_interval"],
+              db_isomap_homogeneity_score,
+              "g--", label="isomap-method")
+
+t = ['d0']
+a = [datasets_dict["d_best"].max()]
+temp = datasets_dict["distances_interval"].tolist()
+temp.append(datasets_dict["d_best"].max())
+temp.sort()
+
+for i in range(0, len(temp)):
+    if temp[i] == datasets_dict["d_best"].max():
+        # temp[i] = 'd0'
+        counter = i
+
+    # temp.pop(counter+1)
+# t.pop(counter+1)
+
+temp = [np.round(x, 1) for x in temp]
+
+# ax[0, 0].get_xticklabels()[counter].set_color("red")
+ax[0, 0].set_xticks(ticks=temp, labels=temp)
+
+ax[0, 0].legend(loc="upper right")
+ax[0, 0].set_title("{} - Homogeneity - {}".format(datasets_dict["dataset_name"], method_name))
+# ax[0, 0].set_xlabel("epsilon distances")
+ax[0, 0].set_ylabel("homogeneity score")
+
+# *******************************************************
+
+ax[0, 1].plot(
+    datasets_dict["distances_interval"],
+    NMI_classic,
+    "r--", label="classic")
+ax[0, 1].plot(
+    datasets_dict["distances_interval"],
+    NMI_d0,
+    "b--", label="d0-method")
+
+ax[0, 1].plot(
+    datasets_dict["distances_interval"],
+    NMI_isomap,
+    "g--", label="isomap-method")
+
+# ax[0, 1].get_xticklabels()[counter].set_color("red")
+ax[0, 1].set_xticks(ticks=temp, labels=temp)
+
+ax[0, 1].legend(loc="upper right")
+ax[0, 1].set_title("{} - NMI - {}".format(datasets_dict["dataset_name"], method_name))
+# ax[0, 1].set_xlabel("epsilon distances")
+ax[0, 1].set_ylabel("NMI score")
+
+# *******************************************************
+
+
+ax[1, 0].plot(
+    datasets_dict["distances_interval"],
+    RAND_index_classic,
+    "r--", label="classic")
+ax[1, 0].plot(
+    datasets_dict["distances_interval"],
+    RAND_index_d0,
+    "b--", label="d0-method")
+
+ax[1, 0].plot(
+    datasets_dict["distances_interval"],
+    RAND_index_isomap,
+    "g--", label="isomap-method")
+
+# ax[1, 0].get_xticklabels()[counter].set_color("red")
+ax[1, 0].set_xticks(ticks=temp, labels=temp)
+
+ax[1, 0].legend(loc="upper right")
+ax[1, 0].set_title("{} - Rand - {}".format(datasets_dict["dataset_name"], method_name))
+ax[1, 0].set_xlabel("epsilon distances")
+ax[1, 0].set_ylabel("Rand score")
+# ax[0, 0].show()
+
+# *******************************************************
+# fig, ax = plt.subplots()
+ax[1, 1].plot(
+    datasets_dict["distances_interval"],
+    V_measure_classic,
+    "r--", label="Classic")
+ax[1, 1].plot(
+    datasets_dict["distances_interval"],
+    V_measure_d0,
+    "b--", label="d0-method")
+
+ax[1, 1].plot(
+    datasets_dict["distances_interval"],
+    V_measure_isomap,
+    "g--", label="isomap-method")
+
+# ax[1, 1].get_xticklabels()[counter].set_color("red")
+ax[1, 1].set_xticks(ticks=temp, labels=temp)
+
+ax[1, 1].legend(loc="upper right")
+ax[1, 1].set_title("{} - Vmeasure - {}".format(datasets_dict["dataset_name"], method_name))
+ax[1, 1].set_ylabel("Vmeasure score")
+ax[1, 1].set_xlabel("epsilon distances")
+plt.show()
+
+plt.plot(
+    datasets_dict["distances_interval"],
+    f1_classic,
+    "r--", label="classic")
+plt.plot(
+    datasets_dict["distances_interval"],
+    f1_d0,
+    "b--", label="d0-method")
+
+plt.plot(
+    datasets_dict["distances_interval"],
+    f1_isomap,
+    "g--", label="isomap-method")
+
+# plt.xticklabels()[counter].set_color("red")
+# plt.xticks(ticks=temp, labels=temp)
+
+plt.legend(loc="upper right")
+plt.title("{} - NMI - {}".format(datasets_dict["dataset_name"], method_name))
+
+plt.ylabel("f1 score")
 
 plt.show()
