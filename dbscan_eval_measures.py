@@ -1,3 +1,7 @@
+# Testing several datasets using DBscan clustering
+# then evaluating the result using clustering evaluation metrics
+# - Silhouette plots
+
 from sklearn.cluster import DBSCAN
 from sklearn import metrics
 import matplotlib.pyplot as plt
