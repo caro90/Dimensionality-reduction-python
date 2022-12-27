@@ -1,5 +1,5 @@
 # Testing several datasets using DBscan clustering
-# then evaluating the result using clustering evaluation metrics:
+# then evaluating the result using clustering evaluation metrics
 # - Silhouette plots
 
 from sklearn.cluster import DBSCAN
@@ -8,12 +8,12 @@ import matplotlib.pyplot as plt
 from loadDatasets import *
 from sklearn.metrics import f1_score
 import numpy as np
-import os
 
-dataset_name = "worms1104"
+dataset_name = "isolet"
 method_name = "DBSCAN"
 
 datasets_dict = load_datasets(dataset_name)
+datasets_dict_new_costs = load_datasets_new_costs(dataset_name)
 
 db_classic_homogeneity_score = []
 db_d0_homogeneity_score = []
@@ -30,12 +30,12 @@ V_measure_d0 = []
 f1_classic = []
 f1_d0 = []
 
-min_pts_list = [3, 5, 10, 15, 20, 40, 60]
+min_pts_list = [3, 5, 10, 20, 40, 60]
 for j in min_pts_list:
     for i in datasets_dict["distances_interval"]:
 
         # Classic DBscan approach:
-        db_classic = DBSCAN(eps=i, min_samples=j).fit(datasets_dict["data"])
+        db_classic = DBSCAN(eps=i, min_samples=j, metric = "precomputed").fit(datasets_dict_new_costs["d0_distances"])
         db_classic_labels_pred = db_classic.labels_
 
         # d0 DBscan:
@@ -59,11 +59,6 @@ for j in min_pts_list:
 
     # Plotting
     # *******************************************************
-
-    if not os.path.exists('/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.2/default cost function/{}'.format(dataset_name)):
-        os.mkdir('/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.2/default cost function/{}'.format(dataset_name))
-
-
     fig, ax = plt.subplots(1, 2)
 
     plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=None, hspace=0.90)
@@ -121,7 +116,7 @@ for j in min_pts_list:
     ax[1].legend(loc="upper right")
     ax[1].set_title("NMI")
     ax[1].set_xlabel("epsilon distances")
-    fig.suptitle("{}-MinPts:{}-{}".format(method_name, j, datasets_dict["dataset_name"]))
+    fig.suptitle("{}-{}".format(method_name,datasets_dict["dataset_name"]))
 
     ax[1].annotate("d0", xy =(datasets_dict["d_best"], NMI_d0[0]),
                    xytext =(datasets_dict["d_best"], NMI_d0[0]),arrowprops = dict(facecolor ='green',
@@ -131,7 +126,7 @@ for j in min_pts_list:
 
 #    plt.savefig('new3-{}/{}-dbscan \n min_pts={}-1.pdf'.format(datasets_dict["dataset_name"],datasets_dict["dataset_name"], j))#, dpi = plt.gcf().dpi)
 
-    plt.savefig("/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.2/default cost function/{}/{}-DBSCAN(Homogeneity,NMI)-default cost-Min_pts {}".format(dataset_name, dataset_name, j))
+    plt.savefig("{}-new-test-{}".format(dataset_name, j))
     # *******************************************************
     fig, ax = plt.subplots(1, 2)
 
@@ -174,13 +169,13 @@ for j in min_pts_list:
     ax[1].set_title("Vmeasure ".format(datasets_dict["dataset_name"], method_name))
     #ax[1, 1].set_ylabel("Vmeasure score")
     ax[1].set_xlabel("epsilon distances")
-    fig.suptitle("{}-MinPts:{}-{}".format(method_name, j, datasets_dict["dataset_name"]))
+    fig.suptitle("{}-{}".format(method_name,datasets_dict["dataset_name"]))
     ax[1].annotate("d0", xy =(datasets_dict["d_best"],V_measure_d0[0]),
                    xytext =(datasets_dict["d_best"],V_measure_d0[0]),arrowprops = dict(facecolor ='green',
                                      shrink = 0.01))
     #plt.show()
     #plt.savefig('new3-{}/{}-dbscan \n min_pts={}-2.pdf'.format(datasets_dict["dataset_name"], datasets_dict["dataset_name"], j))#, dpi = plt.gcf().dpi)
-    plt.savefig("/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.2/default cost function/{}/{}-DBSCAN(Vmeasure,RAND)-default cost-Min_pts {}".format(dataset_name, dataset_name, j))
+    plt.savefig("{}-new-isolet-test2-{}".format(dataset_name, j))
 
     fig, ax = plt.subplots(1)
     plt.plot(
@@ -196,15 +191,15 @@ for j in min_pts_list:
     # plt.xticks(ticks=temp, labels=temp)
 
     plt.legend(loc="upper right")
-    fig.suptitle("{}-MinPts:{}-{}".format(method_name, j, datasets_dict["dataset_name"]))
-    plt.title("F1 score ")
+    plt.title("{}-{} \n f1 score".format(datasets_dict["dataset_name"], method_name))
+    #fig.suptitle("{}-{}".format(method_name,datasets_dict["dataset_name"]))
     plt.annotate("d0", xy =(datasets_dict["d_best"], f1_d0[0]),
                    xytext =(datasets_dict["d_best"], f1_d0[0]),arrowprops = dict(facecolor ='green',
                                      shrink = 0.01))
 
     #plt.savefig('new3-{}/{}-dbscan \n min_pts={}-3.pdf'.format(datasets_dict["dataset_name"], datasets_dict["dataset_name"], j))#, dpi = plt.gcf().dpi)
 
-    plt.savefig("/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.2/default cost function/{}/{}-DBSCAN(f1)-default cost-Min_pts {}".format(dataset_name, dataset_name, j))
+    plt.savefig("{}-new-isolet-test3-{}".format(dataset_name, j))
 
     # Clear the lists for the next run
     db_classic_homogeneity_score = []
