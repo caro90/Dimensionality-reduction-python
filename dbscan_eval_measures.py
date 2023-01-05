@@ -1,7 +1,6 @@
 # Testing several datasets using DBscan clustering
 # then evaluating the result using clustering evaluation metrics:
 # - Silhouette plots
-
 from sklearn.cluster import DBSCAN
 from sklearn import metrics
 import matplotlib.pyplot as plt
@@ -9,11 +8,14 @@ from loadDatasets import *
 from sklearn.metrics import f1_score
 import numpy as np
 import os
+import pickle
 
-dataset_name = "worms1104"
+dataset_name = "coil"
 method_name = "DBSCAN"
 
 datasets_dict = load_datasets(dataset_name)
+
+X = datasets_dict["data"]
 
 db_classic_homogeneity_score = []
 db_d0_homogeneity_score = []
@@ -30,7 +32,7 @@ V_measure_d0 = []
 f1_classic = []
 f1_d0 = []
 
-min_pts_list = [3, 5, 10, 15, 20, 40, 60]
+min_pts_list = [2, 3, 5, 8 ,10, 15, 20, 40, 60, 80]
 for j in min_pts_list:
     for i in datasets_dict["distances_interval"]:
 
@@ -42,6 +44,12 @@ for j in min_pts_list:
         db_d0 = DBSCAN(eps=i, min_samples=j, metric="precomputed").fit(datasets_dict["d0_distances"])
         db_d0_labels_pred = db_d0.labels_
 
+        print("--------------minpts:{}-eps:{}".format(j, i))
+        # Testing Silhouette score:
+        if len(set(db_classic_labels_pred)) >=2 and len(set(db_d0_labels_pred)) >=2:
+            print(f"Silhouette Coefficient classic: {metrics.silhouette_score(X, db_classic_labels_pred):.3f}")
+            print(f"Silhouette Coefficient d0: {metrics.silhouette_score(X, db_d0_labels_pred):.3f}")
+        print("--------------")
         db_classic_homogeneity_score.append(metrics.homogeneity_score(datasets_dict["labels"], db_classic_labels_pred))
         db_d0_homogeneity_score.append(metrics.homogeneity_score(datasets_dict["labels"], db_d0_labels_pred))
 
@@ -101,7 +109,7 @@ for j in min_pts_list:
     ax[0].set_xlabel("epsilon distances")
     #ax[0].annotate('dashed line', xy=(300,0.2), xytext=(300,0.2),arrowprops={'arrowstyle': '-', 'ls': 'dashed',}, va='center')
     ax[0].annotate("d0", xy =(datasets_dict["d_best"], db_d0_homogeneity_score[0]),
-                   xytext =(datasets_dict["d_best"], db_d0_homogeneity_score[0]),arrowprops = dict(facecolor ='green',
+                   xytext =(datasets_dict["d_best"], db_d0_homogeneity_score[0]), arrowprops = dict(facecolor ='green',
                                      shrink = 0.01))
     #ax[0, 0].set_ylabel("homogeneity score")
 
@@ -127,9 +135,13 @@ for j in min_pts_list:
                    xytext =(datasets_dict["d_best"], NMI_d0[0]),arrowprops = dict(facecolor ='green',
                                      shrink = 0.01))
     #plt.show()
+    #plt.savefig('new3-{}/{}-dbscan \n min_pts={}-1.pdf'.format(datasets_dict["dataset_name"],datasets_dict["dataset_name"], j))#, dpi = plt.gcf().dpi)
+
+    # with open('myplot.pkl', 'wb') as fid:
+    #     pickle.dump(ax, fid)
 
 
-#    plt.savefig('new3-{}/{}-dbscan \n min_pts={}-1.pdf'.format(datasets_dict["dataset_name"],datasets_dict["dataset_name"], j))#, dpi = plt.gcf().dpi)
+
 
     plt.savefig("/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.2/default cost function/{}/{}-DBSCAN(Homogeneity,NMI)-default cost-Min_pts {}".format(dataset_name, dataset_name, j))
     # *******************************************************
