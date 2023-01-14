@@ -1,4 +1,4 @@
-from sklearn.cluster import DBSCAN, OPTICS
+from sklearn.cluster import OPTICS
 from sklearn import metrics
 import matplotlib.pyplot as plt
 from loadDatasets import load_datasets
@@ -9,7 +9,11 @@ from sklearn.metrics import f1_score
 import numpy as np
 
 
-datasets_dict = load_datasets()
+dataset_name = "phoneme"
+#method_name = "DBSCAN"
+
+datasets_dict = load_datasets(dataset_name)
+
 # Performance measures
 db_classic_homogeneity_score = []
 db_d0_homogeneity_score = []
@@ -27,15 +31,13 @@ f1_classic = []
 f1_d0 = []
 
 # Choose clustering method:
-# - set clustering_method to 1 for DBscan
 # - set clustering_method to 2 for OPTICS
 # - set clustering_method to 3 for commonNN
 # - set clustering_method to 4 for kMedoid
 clustering_method = 5
 
-if clustering_method == 1:
-    method_name = "DBSCAN"
-elif clustering_method == 2:
+
+if clustering_method == 2:
     method_name = "OPTICS"
 elif clustering_method == 3:
     method_name = "CommonNN"
@@ -46,15 +48,7 @@ min_pts = 30
 
 for i in datasets_dict["distances_interval"]:
 
-    if clustering_method == 1:
-        # Classic DBscan approach:
-        db_classic = DBSCAN(eps=i, min_samples=min_pts).fit(datasets_dict["data"])
-        db_classic_labels_pred = db_classic.labels_
-        # d0 DBscan:
-        db_d0 = DBSCAN(eps=i, min_samples=min_pts, metric="precomputed").fit(datasets_dict["d0_distances"])
-        db_d0_labels_pred = db_d0.labels_
-
-    elif clustering_method == 2:
+    if clustering_method == 2:
         # Classic OPTICS approach
         print("Optics: {}".format(i))
         db_classic = OPTICS(eps=i, min_samples=5).fit(datasets_dict["data"])
@@ -98,10 +92,8 @@ for i in datasets_dict["distances_interval"]:
     V_measure_classic.append(metrics.v_measure_score(datasets_dict["labels"], db_classic_labels_pred))
     V_measure_d0.append(metrics.v_measure_score(datasets_dict["labels"], db_d0_labels_pred))
 
-    f1_classic.append( f1_score(datasets_dict["labels"], db_classic_labels_pred, average='weighted') )
+    f1_classic.append(f1_score(datasets_dict["labels"], db_classic_labels_pred, average='weighted'))
     f1_d0.append(f1_score(datasets_dict["labels"], db_d0_labels_pred, average='weighted'))
-
-
 
 # Plotting
 # *******************************************************
@@ -124,22 +116,14 @@ temp.sort()
 
 for i in range(0, len(temp)):
     if temp[i] == datasets_dict["d_best"].max():
-        #temp[i] = 'd0'
         counter = i
-
-#temp.pop(counter+1)
-#t.pop(counter+1)
 
 temp = [np.round(x, 1) for x in temp]
 
-#ax[0, 0].get_xticklabels()[counter].set_color("red")
 ax[0, 0].set_xticks(ticks=temp, labels=temp)
-
 ax[0, 0].legend(loc="upper right")
 ax[0, 0].set_title("{} - Homogeneity - {}".format(datasets_dict["dataset_name"], method_name))
-#ax[0, 0].set_xlabel("epsilon distances")
 ax[0, 0].set_ylabel("homogeneity score")
-
 
 # *******************************************************
 
