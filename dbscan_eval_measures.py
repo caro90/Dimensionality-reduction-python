@@ -11,7 +11,7 @@ import os
 import pickle
 import csv
 
-dataset_name = "Umist"
+dataset_name = "wine"
 method_name = "DBSCAN"
 
 datasets_dict = load_datasets(dataset_name)
@@ -28,6 +28,12 @@ V_measure_classic = []
 V_measure_d0 = []
 f1_classic = []
 f1_d0 = []
+
+if not os.path.exists(
+        '/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.2/default cost function/{}'.format(
+                dataset_name)):
+    os.mkdir('/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.2/default cost function/{}'.format(
+        dataset_name))
 
 # open the file in the write mode
 f = open('/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.2/default cost function/{}/{}'.format(dataset_name, dataset_name + "silhouetteCoefficient"), 'w')
@@ -71,8 +77,7 @@ for j in min_pts_list:
         f1_d0.append(f1_score(datasets_dict["labels"], db_d0_labels_pred, average='weighted'))
 
     # Plotting
-    if not os.path.exists('/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.2/default cost function/{}'.format(dataset_name)):
-        os.mkdir('/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.2/default cost function/{}'.format(dataset_name))
+
 
     fig, ax = plt.subplots(1, 2)
 

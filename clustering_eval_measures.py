@@ -10,7 +10,6 @@ import numpy as np
 
 
 dataset_name = "phoneme"
-#method_name = "DBSCAN"
 
 datasets_dict = load_datasets(dataset_name)
 
@@ -34,7 +33,7 @@ f1_d0 = []
 # - set clustering_method to 2 for OPTICS
 # - set clustering_method to 3 for commonNN
 # - set clustering_method to 4 for kMedoid
-clustering_method = 5
+clustering_method = 3
 
 
 if clustering_method == 2:
@@ -43,8 +42,6 @@ elif clustering_method == 3:
     method_name = "CommonNN"
 
 method_name = "spectral"
-# DBSCAN parameter:
-min_pts = 30
 
 for i in datasets_dict["distances_interval"]:
 
