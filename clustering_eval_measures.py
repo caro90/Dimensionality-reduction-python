@@ -32,9 +32,7 @@ f1_d0 = []
 # Choose clustering method:
 # - set clustering_method to 2 for OPTICS
 # - set clustering_method to 3 for commonNN
-# - set clustering_method to 4 for kMedoid
 clustering_method = 3
-
 
 if clustering_method == 2:
     method_name = "OPTICS"
@@ -62,13 +60,6 @@ for i in datasets_dict["distances_interval"]:
         db_d0 = CommonNNClustering(eps=i, metric="precomputed").fit(datasets_dict["d0_distances"])
         db_d0_labels_pred = db_d0.labels_
 
-    elif clustering_method == 4:
-        # Classic KMedoids:
-        db_classic = KMedoids(n_clusters=i).fit(datasets_dict["data"])
-        db_classic_labels_pred = db_classic.labels_
-        # D0 KMedoids:
-        db_d0 = KMedoids(n_clusters=i, metric="precomputed").fit(datasets_dict["d0_distances"])
-        db_d0_labels_pred = db_d0.labels_
     elif clustering_method == 5:
         # Classic Spectral clustering
         db_classic = SpectralClustering(assign_labels='discretize', n_clusters=10, random_state=0).fit(datasets_dict["data"])

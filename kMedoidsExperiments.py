@@ -1,124 +1,55 @@
-import numpy as np
+import csv
 from sklearn import metrics
-import matplotlib.pyplot as plt
 from sklearn_extra.cluster import KMedoids
 from loadDatasets import load_datasets
 
-datasets_dict = load_datasets("digits")
-# #########################################################
+import os
 
-num_of_classes = np.linspace(7, 11, 4, dtype=int)
+mylist = os.listdir("/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.2/default cost function/DBscan")
 
-distances_interval = np.round(num_of_classes)
-# Performance measures
-db_classic_homogeneity_score = []
-db_d0_homogeneity_score = []
+for dataset in mylist:
 
-NMI_classic = []
-NMI_d0 = []
+    dataset_name = dataset
+    datasets_dict = load_datasets(dataset_name)
+    numberOfLabels = max(datasets_dict["labels"]) + 1
 
-RAND_index_classic = []
-RAND_index_d0 = []
-
-V_measure_classic = []
-V_measure_d0 = []
-
-
-for i in num_of_classes:
-    print("I am i", i)
-
-    # Classic DBscan classic:
-    db_classic = KMedoids(n_clusters=i).fit(datasets_dict["data"])
+    # Classic Kmedoids classic:
+    db_classic = KMedoids(numberOfLabels).fit(datasets_dict["data"])
     db_classic_labels_pred = db_classic.labels_
-    # D0 DBscan:
-    db_d0 = KMedoids(n_clusters=i, metric="precomputed").fit(datasets_dict["d0_distances"])
+    # D0 Kmedoids:
+    db_d0 = KMedoids(numberOfLabels, metric="precomputed").fit(datasets_dict["d0_distances"])
     db_d0_labels_pred = db_d0.labels_
 
-    db_classic_homogeneity_score.append(metrics.homogeneity_score(datasets_dict["labels"], db_classic_labels_pred))
-    db_d0_homogeneity_score.append(metrics.homogeneity_score(datasets_dict["labels"], db_d0_labels_pred))
+    homo_classic = metrics.homogeneity_score(datasets_dict["labels"], db_classic_labels_pred)
+    homo_d0 = metrics.homogeneity_score(datasets_dict["labels"], db_d0_labels_pred)
 
-    NMI_classic.append(metrics.adjusted_mutual_info_score(datasets_dict["labels"], db_classic_labels_pred))
-    NMI_d0.append(metrics.adjusted_mutual_info_score(datasets_dict["labels"], db_d0_labels_pred))
+    vmeasure_classic = metrics.v_measure_score(datasets_dict["labels"], db_classic_labels_pred)
+    vmeasure_d0 = metrics.v_measure_score(datasets_dict["labels"], db_d0_labels_pred)
 
-    RAND_index_classic.append(metrics.rand_score(datasets_dict["labels"], db_classic_labels_pred))
-    RAND_index_d0.append(metrics.rand_score(datasets_dict["labels"], db_d0_labels_pred))
+    rand_classic = metrics.rand_score(datasets_dict["labels"], db_classic_labels_pred)
+    rand_d0 = metrics.rand_score(datasets_dict["labels"], db_d0_labels_pred)
 
-    V_measure_classic.append(metrics.v_measure_score(datasets_dict["labels"], db_classic_labels_pred))
-    V_measure_d0.append(metrics.v_measure_score(datasets_dict["labels"], db_d0_labels_pred))
+    ami_classic = metrics.adjusted_mutual_info_score(datasets_dict["labels"], db_classic_labels_pred)
+    ami_d0 = metrics.adjusted_mutual_info_score(datasets_dict["labels"], db_d0_labels_pred)
 
-# Plotting
-# *******************************************************
-fig, ax = plt.subplots(2, 2)
+    nmi_classic = metrics.normalized_mutual_info_score(datasets_dict["labels"], db_classic_labels_pred)
+    nmi_d0 = metrics.normalized_mutual_info_score(datasets_dict["labels"], db_d0_labels_pred)
 
-ax[0, 0].plot(
-        num_of_classes,
-        db_classic_homogeneity_score,
-        "r--", label="classic")
+    f1_classic = metrics.f1_score(datasets_dict["labels"], db_classic_labels_pred, average='weighted')
+    f1_d0 = metrics.f1_score(datasets_dict["labels"], db_d0_labels_pred, average='weighted')
 
-ax[0, 0].plot(distances_interval,
-        db_d0_homogeneity_score,
-        "b--", label="d0-method")
+    # Saving the results into a csv file
+    # *******************************************************
 
+    # open the file in the write mode
+    f = open('/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.2/default cost function/Kmedoids/{}-kmedoids'.format(dataset_name), 'w')
+    # create the csv writer
+    writer = csv.writer(f)
+    writer.writerow(["Number of labels", "Homogeneity classic", "Homogeneity d0", "Vmeasure classic", "Vmeasure d0", "RAND classic", "RAND d0", "AMI classic",
+                     "AMI d0", "NMI classic", "NMI d0", "F1 classic", "F1 d0", "Silhouette coefficient classic", "Silhouette coefficient d0"])
 
-t = ['d0']
-a = [datasets_dict["d_best"].max()]
-temp = num_of_classes.tolist()
-temp.append(datasets_dict["d_best"].max())
-temp.sort()
-temp_label = temp
-temp = [int(x) for x in temp]
-t = [str(n) for n in temp]
+    writer.writerow([numberOfLabels, homo_classic, homo_d0, vmeasure_classic, vmeasure_d0, rand_classic, rand_d0, ami_classic, ami_d0, nmi_classic, nmi_d0,
+                                 f1_classic, f1_d0,metrics.silhouette_score(datasets_dict["data"], db_classic_labels_pred),
+                                 metrics.silhouette_score(datasets_dict["d0_distances"], db_d0_labels_pred, metric="precomputed")])
 
-for i in range(len(t)):
-    if t[i] == str(int(datasets_dict["d_best"].max())):
-        t[i] = 'd0'
-        counter = i
-
-ax[0, 0].legend(loc="upper right")
-ax[0, 0].set_title("{} - Homogeneity - {}".format(datasets_dict["dataset_name"], "Kmedoids"))
-ax[0, 0].set_ylabel("homogeneity score")
-
-# *******************************************************
-ax[0, 1].plot(
-        num_of_classes,
-        NMI_classic,
-        "r--", label="classic")
-ax[0, 1].plot(
-        num_of_classes,
-        NMI_d0,
-        "b--", label="d0-method")
-
-ax[0, 1].legend(loc="upper right")
-ax[0, 1].set_title("{} - NMI - {}".format(datasets_dict["dataset_name"], "Kmedoids"))
-ax[0, 1].set_ylabel("NMI score")
-
-# *******************************************************
-ax[1, 0].plot(
-        num_of_classes,
-        RAND_index_classic,
-        "r--", label="classic")
-ax[1, 0].plot(
-        num_of_classes,
-        RAND_index_d0,
-        "b--", label="d0-method")
-
-ax[1, 0].legend(loc="upper right")
-ax[1, 0].set_title("{} - Rand - {}".format(datasets_dict["dataset_name"], "Kmedoids"))
-ax[1, 0].set_xlabel("Number of clusters")
-ax[1, 0].set_ylabel("Rand score")
-
-# *******************************************************
-ax[1, 1].plot(
-        num_of_classes,
-        V_measure_classic,
-        "r--", label="Classic")
-ax[1, 1].plot(
-        num_of_classes,
-        V_measure_d0,
-        "b--", label="d0-method")
-
-ax[1, 1].legend(loc="upper right")
-ax[1, 1].set_title("{} - Vmeasure - {}".format(datasets_dict["dataset_name"], "Kmedoids"))
-ax[1, 1].set_ylabel("Vmeasure score")
-ax[1, 1].set_xlabel("Number of clusters")
-plt.show()
+    f.close()
