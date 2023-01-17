@@ -1,7 +1,7 @@
 # Testing several datasets using DBscan clustering
-# then evaluating the result using clustering evaluation metrics:
-# - Silhouette plots
-from sklearn.cluster import DBSCAN
+# then evaluating the result using clustering evaluation metrics
+
+from sklearn.cluster import DBSCAN, OPTICS
 from sklearn import metrics
 import matplotlib.pyplot as plt
 from loadDatasets import *
@@ -12,7 +12,7 @@ import pickle
 import csv
 
 dataset_name = "wine"
-method_name = "DBSCAN"
+method_name = "OPTICS"
 
 datasets_dict = load_datasets(dataset_name)
 
@@ -20,23 +20,26 @@ X = datasets_dict["data"]
 
 db_classic_homogeneity_score = []
 db_d0_homogeneity_score = []
+
 NMI_classic = []
 NMI_d0 = []
+
 RAND_index_classic = []
 RAND_index_d0 = []
+
 V_measure_classic = []
 V_measure_d0 = []
+
 f1_classic = []
 f1_d0 = []
 
-if not os.path.exists(
-        '/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.2/default cost function/{}'.format(
+if not os.path.exists('/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.2/default cost function/{}/{}'.format(method_name,
                 dataset_name)):
-    os.mkdir('/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.2/default cost function/{}'.format(
+    os.mkdir('/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.2/default cost function/{}/{}'.format(method_name,
         dataset_name))
 
 # open the file in the write mode
-f = open('/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.2/default cost function/{}/{}'.format(dataset_name, dataset_name + "silhouetteCoefficient"), 'w')
+f = open('/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.2/default cost function/{}/{}/{}'.format(method_name, dataset_name, dataset_name + "silhouetteCoefficient"), 'w')
 # create the csv writer
 writer = csv.writer(f)
 writer.writerow(["MinPts", "eps", "Silhouette coefficient classic", "Silhouette coefficient d0"])
@@ -46,13 +49,21 @@ for j in min_pts_list:
     print("MinPts: {}".format(j))
     for i in datasets_dict["distances_interval"]:
 
-        # Classic DBscan approach:
-        db_classic = DBSCAN(eps=i, min_samples=j).fit(datasets_dict["data"])
-        db_classic_labels_pred = db_classic.labels_
+        if method_name == "DBSCAN":
+            # Classic DBscan approach:
+            db_classic = DBSCAN(eps=i, min_samples=j).fit(datasets_dict["data"])
+            db_classic_labels_pred = db_classic.labels_
 
-        # d0 DBscan:
-        db_d0 = DBSCAN(eps=i, min_samples=j, metric="precomputed").fit(datasets_dict["d0_distances"])
-        db_d0_labels_pred = db_d0.labels_
+            # d0 DBscan:
+            db_d0 = DBSCAN(eps=i, min_samples=j, metric="precomputed").fit(datasets_dict["d0_distances"])
+            db_d0_labels_pred = db_d0.labels_
+
+        if method_name == "OPTICS":
+            db_classic = OPTICS(eps=i, min_samples=j).fit(datasets_dict["data"])
+            db_classic_labels_pred = db_classic.labels_
+            # d0 OPTICS:
+            db_d0 = OPTICS(eps=i, min_samples=j, metric="precomputed").fit(datasets_dict["d0_distances"])
+            db_d0_labels_pred = db_d0.labels_
 
         if len(set(db_classic_labels_pred)) >= 2 and len(set(db_d0_labels_pred)) >= 2:
             # Silhouette Coefficient is only defined if number of labels is 2 <= n_labels <= n_samples - 1.
@@ -77,8 +88,6 @@ for j in min_pts_list:
         f1_d0.append(f1_score(datasets_dict["labels"], db_d0_labels_pred, average='weighted'))
 
     # Plotting
-
-
     fig, ax = plt.subplots(1, 2)
 
     plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=None, hspace=0.90)
@@ -123,7 +132,8 @@ for j in min_pts_list:
     ax[1].set_xlabel("epsilon distances")
     fig.suptitle("{}-MinPts:{}-{}".format(method_name, j, datasets_dict["dataset_name"]))
 
-    pathName = "/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.2/default cost function/{}/{}-DBSCAN(Homogeneity,NMI)-default cost-Min_pts {}".format(dataset_name, dataset_name, j)
+    pathName = "/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.2/default cost function/{}/{}/{}-DBSCAN(Homogeneity,NMI)-default cost-Min_pts {}"\
+        .format(method_name, dataset_name, dataset_name, j)
     plt.savefig(pathName)
 
     # Creating a figure that can be later changed
@@ -162,8 +172,8 @@ for j in min_pts_list:
     ax[1].set_xlabel("epsilon distances")
     fig.suptitle("{}-MinPts:{}-{}".format(method_name, j, datasets_dict["dataset_name"]))
 
-    pathName = "/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.2/default cost function/{}/{}-DBSCAN(Vmeasure,RAND)-default cost-Min_pts {}"\
-        .format(dataset_name, dataset_name, j)
+    pathName = "/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.2/default cost function/{}/{}/{}-DBSCAN(Vmeasure,RAND)-default cost-Min_pts {}"\
+        .format(method_name, dataset_name, dataset_name, j)
     plt.savefig(pathName)
 
     # Creating a figure that can be later changed
@@ -184,8 +194,8 @@ for j in min_pts_list:
     fig.suptitle("{}-MinPts:{}-{}".format(method_name, j, datasets_dict["dataset_name"]))
     plt.title("F1 score ")
 
-    pathName = "/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.2/default cost function/{}/{}-DBSCAN(f1)-default cost-Min_pts {}"\
-        .format(dataset_name, dataset_name, j)
+    pathName = "/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.2/default cost function/{}/{}/{}-DBSCAN(f1)-default cost-Min_pts {}"\
+        .format(method_name, dataset_name, dataset_name, j)
     plt.savefig(pathName)
 
     # Creating a figure that can be later changed

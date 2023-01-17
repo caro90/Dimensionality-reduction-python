@@ -160,3 +160,22 @@ print("debugger point")
 # plt.xlabel("epsilon distances")
 # plt.ylabel("homogeneity score")
 # plt.show()
+
+
+
+
+from sklearn.cluster import SpectralClustering
+import numpy as np
+
+# create a distance matrix
+D = np.array([[0, 2, 4], [2, 0, 2], [4, 2, 0]])
+
+# define sigma
+sigma = 1
+
+# calculate the affinity matrix
+A = np.exp(-D**2/(2*sigma**2))
+
+# perform spectral clustering
+sc = SpectralClustering(n_clusters=2)
+clusters = sc.fit_predict(A)
