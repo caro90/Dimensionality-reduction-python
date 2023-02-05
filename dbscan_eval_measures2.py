@@ -2,6 +2,8 @@
 # then evaluating the result using clustering evaluation metrics
 # - Silhouette plots
 
+# For testing alternative costs
+
 from sklearn.cluster import DBSCAN
 from sklearn import metrics
 import matplotlib.pyplot as plt

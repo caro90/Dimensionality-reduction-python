@@ -1,12 +1,10 @@
 # Testing several datasets using DBscan clustering
 # then evaluating the result using clustering evaluation metrics
-
 from sklearn.cluster import DBSCAN, OPTICS
 from sklearn import metrics
 import matplotlib.pyplot as plt
 from loadDatasets import *
 from sklearn.metrics import f1_score
-import numpy as np
 import os
 import pickle
 import csv

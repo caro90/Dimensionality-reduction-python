@@ -18,7 +18,7 @@ for dataset in mylist:
     db_classic_labels_pred = db_classic.labels_
 
     # d0 Spectral clustering:
-    d0_distances = np.exp(-datasets_dict["d0_distances"]**2 / (2* datasets_dict["d_best"]**2))
+    d0_distances = np.exp(-datasets_dict["d0_distances"]**2 / (2 * datasets_dict["d_best"]**2))
     db_d0 = SpectralClustering(n_clusters=numberOfLabels, assign_labels='discretize', random_state=0, affinity='precomputed').fit(
         d0_distances)
     db_d0_labels_pred = db_d0.labels_
