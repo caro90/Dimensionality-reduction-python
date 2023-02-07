@@ -22,7 +22,7 @@ def load_datasets(dataset_name):
     Dmin_temp_value = np.amin(T)
     labels = np.reshape(labels, D.shape[1])
 
-    distances_interval = np.linspace(Dmin_temp_value, Dmax_temp_value, 120)
+    distances_interval = np.linspace(Dmin_temp_value, Dmax_temp_value, 40)
     if distances_interval[0] == 0:
         distances_interval = np.delete(distances_interval, 0)
 
