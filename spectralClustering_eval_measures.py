@@ -14,12 +14,13 @@ for dataset in mylist:
     numberOfLabels = max(datasets_dict["labels"]) + 1
 
     # Classic Spectral clustering classic:
-    db_classic = SpectralClustering(n_clusters=numberOfLabels, assign_labels='discretize', random_state=0).fit(datasets_dict["data"])
+    db_classic = SpectralClustering(n_clusters=numberOfLabels, assign_labels='discretize', random_state=0, eigen_solver='amg').fit(datasets_dict["data"])
     db_classic_labels_pred = db_classic.labels_
 
     # d0 Spectral clustering:
-    d0_distances = np.exp(-datasets_dict["d0_distances"]**2 / (2 * datasets_dict["d_best"]**2))
-    db_d0 = SpectralClustering(n_clusters=numberOfLabels, assign_labels='discretize', random_state=0, affinity='precomputed').fit(
+    sigma = datasets_dict["d_best"]
+    d0_distances = np.exp(-datasets_dict["d0_distances"]**2 / (2 * sigma ** 2))
+    db_d0 = SpectralClustering(n_clusters=numberOfLabels, assign_labels='discretize', random_state=0, affinity='precomputed', eigen_solver='amg').fit(
         d0_distances)
     db_d0_labels_pred = db_d0.labels_
 
