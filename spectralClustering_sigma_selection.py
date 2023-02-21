@@ -5,14 +5,15 @@ from sklearn.cluster import SpectralClustering
 from loadDatasets import load_datasets
 import numpy as np
 
-mylist = os.listdir("/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.2/default cost function/"
+mylist = os.listdir("/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/"
                     "DBSCAN")
+# create a main function
 
 for dataset in mylist:
     print(f"dataset name:{dataset}")
     # open the file in the write mode
     f = open(
-        '/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.2/default cost function/'
+        '/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/'
         'SpectralClustering/{}-SpectralClustering-d0-sigmaSelection'
         .format(dataset), 'w')
     # create the csv writer
@@ -22,7 +23,7 @@ for dataset in mylist:
 
     # open the file in the write mode
     f2 = open(
-        '/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.2/default cost function/'
+        '/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/'
         'SpectralClustering/{}-SpectralClustering-euclidean-sigmaSelection'
         .format(dataset), 'w')
     # create the csv writer

@@ -10,7 +10,7 @@ def load_datasets(dataset_name):
     euclidean_distances = scipy.io.loadmat('/home/arch/Matlab/Dimensionality Reduction/mat_files/{}_euclidean_distances.mat'.format(dataset_name))
     D = euclidean_distances.get('D')
 
-    distances = scipy.io.loadmat('/home/arch/Matlab/Dimensionality Reduction/mat_files/Version 0.2/d0_distances sin method/cost 1 default/lambda_10000/{}_d0_distances.mat'.format(dataset_name))
+    distances = scipy.io.loadmat('/home/arch/Matlab/Dimensionality Reduction/mat_files/Version 0.3/d0_distances_sin_method/cost 1 default/lambda 10000/{}_d0_distances.mat'.format(dataset_name))
     d0_distances = distances.get('d0_distances')
     DMAX = distances.get('DMAX')
     DMAX_avg = distances.get('DMAX_avg')

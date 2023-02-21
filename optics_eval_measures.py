@@ -9,7 +9,7 @@ import os
 import pickle
 import csv
 
-mylist = os.listdir("/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.2/default cost function/DBSCAN")
+mylist = os.listdir("/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/DBSCAN")
 
 db_classic_homogeneity_score = []
 db_d0_homogeneity_score = []
@@ -29,16 +29,16 @@ f1_d0 = []
 for dataset in mylist:
     min_pts_list = [2, 3, 5, 8, 10, 15, 20, 30, 40, 60, 80]
     if not os.path.exists(
-            '/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.2/default cost function/OPTICS/{}'
+            '/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/OPTICS/{}'
                     .format(dataset)):
-        os.mkdir('/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.2/default cost function/OPTICS/{}'
+        os.mkdir('/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/OPTICS/{}'
                  .format(dataset))
     datasets_dict = load_datasets(dataset)
     print("{}".format(dataset))
 
     # open the file in the write mode for silhouetteCoefficient
     f = open(
-        '/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.2/default cost function/OPTICS/{}/{}'
+        '/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/OPTICS/{}/{}'
         .format(dataset, dataset + "silhouetteCoefficient"), 'w')
     # create the csv writer
     writer = csv.writer(f)
@@ -107,7 +107,7 @@ for dataset in mylist:
     ax[1].set_xlabel("MinPts")
     fig.suptitle("OPTICS-{}".format(datasets_dict["dataset_name"]))
 
-    pathName = "/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.2/default cost function/OPTICS/{}/{}-OPTICS(Homogeneity,AMI)-default cost"\
+    pathName = "/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/OPTICS/{}/{}-OPTICS(Homogeneity,AMI)-default cost"\
         .format(dataset, dataset)
     plt.savefig(pathName)
 
@@ -146,7 +146,7 @@ for dataset in mylist:
     ax[1].set_xlabel("MinPts")
     fig.suptitle("OPTICS-{}".format(datasets_dict["dataset_name"]))
 
-    pathName = "/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.2/default cost function/OPTICS/{}/{}-OPTICS(Vmeasure,RAND)-default cost"\
+    pathName = "/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/OPTICS/{}/{}-OPTICS(Vmeasure,RAND)-default cost"\
         .format(dataset, dataset)
     plt.savefig(pathName)
 
@@ -167,7 +167,7 @@ for dataset in mylist:
     plt.legend(loc="upper right")
     fig.suptitle("OPTICS-{}".format(datasets_dict["dataset_name"]))
     plt.title("F1 score")
-    pathName = "/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.2/default cost function/OPTICS/{}/{}-OPTICS(f1)-default cost"\
+    pathName = "/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/OPTICS/{}/{}-OPTICS(f1)-default cost"\
         .format(dataset, dataset)
     plt.savefig(pathName)
 

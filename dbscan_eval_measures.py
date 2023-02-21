@@ -31,13 +31,13 @@ V_measure_d0 = []
 f1_classic = []
 f1_d0 = []
 
-if not os.path.exists('/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.2/default cost function/{}/{}'
+if not os.path.exists('/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/{}/{}'
                               .format(method_name, dataset_name)):
-    os.mkdir('/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.2/default cost function/{}/{}'
+    os.mkdir('/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/{}/{}'
              .format(method_name, dataset_name))
 
 # open the file in the write mode
-f = open('/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.2/default cost function/{}/{}/{}'
+f = open('/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/{}/{}/{}'
          .format(method_name, dataset_name, dataset_name + "silhouetteCoefficient"), 'w')
 # create the csv writer
 writer = csv.writer(f)
@@ -110,7 +110,7 @@ for j in min_pts_list:
     ax[1].set_xlabel("epsilon distances")
     fig.suptitle("{}-MinPts:{}-{}".format(method_name, j, datasets_dict["dataset_name"]))
 
-    pathName = "/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.2/default cost function/{}/{}/{}-DBSCAN(Homogeneity,AMI)-default cost-Min_pts {}"\
+    pathName = "/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/{}/{}/{}-DBSCAN(Homogeneity,AMI)-default cost-Min_pts {}"\
         .format(method_name, dataset_name, dataset_name, j)
     plt.savefig(pathName)
 
@@ -149,7 +149,7 @@ for j in min_pts_list:
     ax[1].set_xlabel("epsilon distances")
     fig.suptitle("{}-MinPts:{}-{}".format(method_name, j, datasets_dict["dataset_name"]))
 
-    pathName = "/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.2/default cost function/{}/{}/{}-DBSCAN(Vmeasure,RAND)-default cost-Min_pts {}"\
+    pathName = "/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/{}/{}/{}-DBSCAN(Vmeasure,RAND)-default cost-Min_pts {}"\
         .format(method_name, dataset_name, dataset_name, j)
     plt.savefig(pathName)
 
@@ -170,7 +170,7 @@ for j in min_pts_list:
     plt.legend(loc="upper right")
     fig.suptitle("{}-MinPts:{}-{}".format(method_name, j, datasets_dict["dataset_name"]))
     plt.title("F1 score")
-    pathName = "/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.2/default cost function/{}/{}/{}-DBSCAN(f1)-default cost-Min_pts {}"\
+    pathName = "/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/{}/{}/{}-DBSCAN(f1)-default cost-Min_pts {}"\
         .format(method_name, dataset_name, dataset_name, j)
     plt.savefig(pathName)
 

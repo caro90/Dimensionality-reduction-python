@@ -7,7 +7,7 @@ from sklearn_extra.cluster import CommonNNClustering
 from sklearn.metrics import f1_score
 import os
 
-mylist = os.listdir("/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.2/default cost function/DBSCAN")
+mylist = os.listdir("/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/DBSCAN")
 for dataset in mylist:
 
     dataset_name = dataset
@@ -32,13 +32,13 @@ for dataset in mylist:
     f1_classic = []
     f1_d0 = []
 
-    if not os.path.exists('/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.2/default cost function/{}/{}'
+    if not os.path.exists('/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/{}/{}'
                                   .format(method_name, dataset_name)):
-        os.mkdir('/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.2/default cost function/{}/{}'
+        os.mkdir('/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/{}/{}'
                  .format(method_name, dataset_name))
 
     # open the file in the write mode
-    f = open('/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.2/default cost function/{}/{}/{}'
+    f = open('/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/{}/{}/{}'
              .format(method_name, dataset_name, dataset_name + "silhouetteCoefficient"), 'w')
     # create the csv writer
     writer = csv.writer(f)
@@ -108,7 +108,7 @@ for dataset in mylist:
     ax[1].set_xlabel("epsilon distances")
     fig.suptitle("{}-{}".format(method_name, datasets_dict["dataset_name"]))
 
-    pathName = "/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.2/default cost function/{}/{}/{}-CommonNN(Homogeneity,AMI)-default cost"\
+    pathName = "/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/{}/{}/{}-CommonNN(Homogeneity,AMI)-default cost"\
         .format(method_name, dataset_name, dataset_name)
     plt.savefig(pathName)
 
@@ -147,7 +147,7 @@ for dataset in mylist:
     ax[1].set_xlabel("epsilon distances")
     fig.suptitle("{}-{}".format(method_name, datasets_dict["dataset_name"]))
 
-    pathName = "/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.2/default cost function/{}/{}/{}-CommonNN(Vmeasure,RAND)-default cost"\
+    pathName = "/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/{}/{}/{}-CommonNN(Vmeasure,RAND)-default cost"\
         .format(method_name, dataset_name, dataset_name)
     plt.savefig(pathName)
 
@@ -173,7 +173,7 @@ for dataset in mylist:
     ax.set_title("F1".format(datasets_dict["dataset_name"], method_name))
     ax.set_xlabel("epsilon distances")
 
-    pathName = "/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.2/default cost function/{}/{}/{}-commonNN(F1)-default cost" \
+    pathName = "/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/{}/{}/{}-commonNN(F1)-default cost" \
         .format(method_name, dataset_name, dataset_name)
     plt.savefig(pathName)
 

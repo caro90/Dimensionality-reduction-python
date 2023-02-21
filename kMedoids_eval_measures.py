@@ -4,14 +4,14 @@ from sklearn_extra.cluster import KMedoids
 from loadDatasets import load_datasets
 import os
 
-mylist = os.listdir("/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.2/default cost function/DBSCAN")
+mylist = os.listdir("/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/DBSCAN")
 
 # 1 - Write each dataset in each own csv file
 # 2 - or aggregate all dataset results in one csv file
 csv_formatting_flag = 2
 if csv_formatting_flag == 2:
     f = open(
-        '/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.2/default cost function/Kmedoids/kmedoids evaluation experiments', 'w')
+        '/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/Kmedoids/kmedoids evaluation experiments', 'w')
     writer = csv.writer(f)
     writer.writerow(
         ["Dataset name", "Number of labels", "Dimensions", "Number of points", "Homogeneity classic", "Homogeneity d0",
@@ -55,7 +55,7 @@ for dataset in mylist:
 
     if csv_formatting_flag == 1:
         # open the file in the write mode
-        f = open('/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.2/default cost function/Kmedoids/{}-kmedoids'.format(dataset_name), 'w')
+        f = open('/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/Kmedoids/{}-kmedoids'.format(dataset_name), 'w')
         # create the csv writer
         writer = csv.writer(f)
         writer.writerow(["Number of labels", "Dimensions", "Number of points","Homogeneity classic", "Homogeneity d0", "Vmeasure classic", "Vmeasure d0", "RAND classic", "RAND d0", "AMI classic",
