@@ -8,16 +8,16 @@ mylist = os.listdir("/home/arch/PycharmProjects/Dimensionality reduction results
 for dataset in mylist:
     datasetName = dataset
 
-    with open("/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/CommonNN/Processed datasets/{}-commonNN(F1)-default cost.pkl".format(datasetName), 'rb') as fid:
+    with open("/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/OPTICS/Processed datasets/{}-OPTICS(f1)-default cost.pkl".format(datasetName), 'rb') as fid:
         fig_f1 = pickle.load(fid)
 
-    with open("/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/CommonNN/Processed datasets/{}-CommonNN(Homogeneity,AMI)-default cost.pkl".format(datasetName), 'rb') as fid:
+    with open("/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/OPTICS/Processed datasets/{}-OPTICS(Homogeneity,AMI)-default cost.pkl".format(datasetName), 'rb') as fid:
         fig_homo_ami = pickle.load(fid)
 
-    with open("/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/CommonNN/Processed datasets/{}-CommonNN(Vmeasure,RAND)-default cost.pkl".format(datasetName), 'rb') as fid:
+    with open("/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/OPTICS/Processed datasets/{}-OPTICS(Vmeasure,RAND)-default cost.pkl".format(datasetName), 'rb') as fid:
         fig_vmeasure_rand = pickle.load(fid)
 
-    fileToStore = "{}-commonNN-metrics".format(datasetName)
+    fileToStore = "{}-OPTICS-metrics".format(datasetName)
 
     # Get the first subplot from the saved figure
     ax1 = fig_f1.axes
@@ -28,15 +28,14 @@ for dataset in mylist:
 
     # Create a new figure with two identical subplots
     fig2, ax = plt.subplots(1, 5)
-    #
-    plt.subplots_adjust(wspace=0.30)
 
-    #fig2.tight_layout(h_pad=5)
+    #plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=0.30, hspace=0.90)
+    fig2.subplots_adjust(left=0.05, bottom=0.15, right=0.95, top=0.85, wspace=0.4)
 
-    plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=None, hspace=0.90)
+
     # Plot the data from the first subplot in the new figure
-    ax[0].plot(ax1.lines[0].get_xdata(), ax1.lines[0].get_ydata(), "r--", label="cl")
-    ax[0].plot(ax1.lines[1].get_xdata(), ax1.lines[1].get_ydata(), "b--", label="d0")
+    ax[0].plot(ax1.lines[0].get_xdata(), ax1.lines[0].get_ydata(), "r--", label="classic")
+    ax[0].plot(ax1.lines[1].get_xdata(), ax1.lines[1].get_ydata(), "b--", label="d0_method")
 
     ax[0].legend(loc="upper right")
     ax[0].set_title("F1")
@@ -55,8 +54,8 @@ for dataset in mylist:
         else:
             t.set_color("blue")
 
-    ax[1].plot(ax2.lines[0].get_xdata(), ax2.lines[0].get_ydata(), "r--", label="cl")
-    ax[1].plot(ax2.lines[1].get_xdata(), ax2.lines[1].get_ydata(), "b--", label="d0")
+    ax[1].plot(ax2.lines[0].get_xdata(), ax2.lines[0].get_ydata(), "r--", label="classic")
+    ax[1].plot(ax2.lines[1].get_xdata(), ax2.lines[1].get_ydata(), "b--", label="d0-method")
 
     ax[1].legend(loc="upper right")
     ax[1].set_title("Homogeneity")
@@ -74,12 +73,12 @@ for dataset in mylist:
             t.set_color("blue")
 
 
-    ax[2].plot(ax3.lines[0].get_xdata(), ax3.lines[0].get_ydata(), "r--", label="cl")
-    ax[2].plot(ax3.lines[1].get_xdata(), ax3.lines[1].get_ydata(), "b--", label="d0")
+    ax[2].plot(ax3.lines[0].get_xdata(), ax3.lines[0].get_ydata(), "r--", label="classic")
+    ax[2].plot(ax3.lines[1].get_xdata(), ax3.lines[1].get_ydata(), "b--", label="d0-method")
 
     ax[2].legend(loc="upper right")
     ax[2].set_title("AMI")
-    ax[2].set_xlabel("epsilon distances")
+    ax[2].set_xlabel("MinPts")
 
     ymax = max(ax3.lines[0].get_ydata())
     ymax2 = max(ax3.lines[1].get_ydata())
@@ -94,8 +93,8 @@ for dataset in mylist:
             t.set_color("blue")
 
 
-    ax[3].plot(ax4.lines[0].get_xdata(), ax4.lines[0].get_ydata(), "r--", label="cl")
-    ax[3].plot(ax4.lines[1].get_xdata(), ax4.lines[1].get_ydata(), "b--", label="d0")
+    ax[3].plot(ax4.lines[0].get_xdata(), ax4.lines[0].get_ydata(), "r--", label="classic")
+    ax[3].plot(ax4.lines[1].get_xdata(), ax4.lines[1].get_ydata(), "b--", label="d0-method")
 
     ax[3].legend(loc="upper right")
     ax[3].set_title("Vmeasure")
@@ -112,11 +111,11 @@ for dataset in mylist:
         else:
             t.set_color("blue")
 
-    ax[4].plot(ax5.lines[0].get_xdata(), ax5.lines[0].get_ydata(), "r--", label="cl")
-    ax[4].plot(ax5.lines[1].get_xdata(), ax5.lines[1].get_ydata(), "b--", label="d0")
+    ax[4].plot(ax5.lines[0].get_xdata(), ax5.lines[0].get_ydata(), "r--", label="classic")
+    ax[4].plot(ax5.lines[1].get_xdata(), ax5.lines[1].get_ydata(), "b--", label="d0-method")
 
     ax[4].legend(loc="upper right")
-    ax[4].set_title("Vmeasure")
+    ax[4].set_title("RAND")
 
     ymax = max(ax5.lines[0].get_ydata())
     ymax2 = max(ax5.lines[1].get_ydata())
@@ -132,11 +131,19 @@ for dataset in mylist:
 
 
     # Storing as a pickle file
-    pathName = "/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/CommonNN/Processed datasets/newProcessedFigures/{}"\
+    pathName = "/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/OPTICS/Processed datasets/new_processed_figures/{}"\
             .format(fileToStore)
      # Creating a figure that can be later changed
     with open(pathName + '.pkl', 'wb') as fid:
             pickle.dump(ax, fid)
 
-    #plt.show()
+# Just for testing:
 
+# mylist = os.listdir("/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/DBSCAN")
+# for dataset in mylist:
+#
+#     with open("/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/"
+#               f"OPTICS/Processed datasets/new_processed_figures/{dataset}-OPTICS-metrics.pkl", 'rb') as fid:
+#         fig = pickle.load(fid)
+#
+#     plt.show()
