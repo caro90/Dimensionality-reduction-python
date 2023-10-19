@@ -3,7 +3,6 @@ import pickle
 import matplotlib.ticker as ticker
 import os
 
-
 mylist = os.listdir("/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/DBSCAN")
 for dataset in mylist:
     datasetName = dataset
@@ -129,7 +128,6 @@ for dataset in mylist:
             flag = 1
         else:
             t.set_color("blue")
-
 
     # Storing as a pickle file
     pathName = "/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/CommonNN/Processed datasets/newProcessedFigures/{}"\

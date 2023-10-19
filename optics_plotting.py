@@ -130,6 +130,7 @@ for dataset in mylist:
             t.set_color("blue")
 
 
+
     # Storing as a pickle file
     pathName = "/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/OPTICS/Processed datasets/new_processed_figures/{}"\
             .format(fileToStore)
