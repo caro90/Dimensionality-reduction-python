@@ -5,13 +5,14 @@ from loadDatasets import load_datasets
 import os
 
 mylist = os.listdir("/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/DBSCAN")
-
+mylist.remove("Extended")
+mylist.remove("Processed datasets")
 # 1 - Write each dataset in each own csv file
 # 2 - or aggregate all dataset results in one csv file
 csv_formatting_flag = 2
 if csv_formatting_flag == 2:
     f = open(
-        '/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/Kmedoids/kmedoids evaluation experiments', 'w')
+        '/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.4/default cost function/Kmedoids/kmedoids evaluation experiments', 'w')
     writer = csv.writer(f)
     writer.writerow(
         ["Dataset name", "Number of labels", "Dimensions", "Number of points", "Homogeneity classic", "Homogeneity d0",

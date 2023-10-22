@@ -7,6 +7,7 @@ from loadDatasets import load_datasets
 from sklearn_extra.cluster import CommonNNClustering
 from sklearn.metrics import f1_score
 import os
+from minPtsSampling import generate_min_samples_range
 
 def customTickingForYaxis(ax, axesCounterList):
 
@@ -59,20 +60,21 @@ def evalMeasures(datasets, method_name, customTicking):
         f1_classic = []
         f1_d0 = []
 
-        if not os.path.exists('/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/{}/{}/{}'
-                                      .format(method_name, "Extended", dataset_name)):
-            os.mkdir('/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/{}/{}/{}'
-                     .format(method_name, "Extended", dataset_name))
+        if not os.path.exists('/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.4/default cost function/{}/{}'
+                                      .format(method_name, dataset_name)):
+            os.mkdir('/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.4/default cost function/{}/{}'
+                     .format(method_name, dataset_name))
 
-        for minPTS in [2, 3, 5, 7, 9, 11, 13, 15, 17, 20, 25, 30, 35, 40, 50, 60, 80]:
+        minPTS_range = generate_min_samples_range(X.shape[1])
+        for index, minPTS in enumerate(minPTS_range):
             # open the file in the write mode
             f = open(
-                '/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/{}/{}/{}/{}'
-                .format(method_name, "Extended", dataset_name, dataset_name + "silhouetteCoefficient"), 'w')
-
-            # create the csv writer
+                '/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.4/default cost function/{}/{}/{}'
+                .format(method_name, dataset_name, dataset_name + "silhouetteCoefficient"), 'a')
             writer = csv.writer(f)
-            writer.writerow(["minPTS", "eps", "Silhouette coefficient classic", "Silhouette coefficient d0"])
+            if index == 0:
+                # create the csv writer
+                writer.writerow(["minPTS", "eps", "Silhouette coefficient classic", "Silhouette coefficient d0"])
 
             for i in datasets_dict["distances_interval"]:
 
@@ -142,8 +144,8 @@ def evalMeasures(datasets, method_name, customTicking):
 
             fig.suptitle("{}-{}".format(method_name, datasets_dict["dataset_name"]))
 
-            pathName = "/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/{}/{}/{}/{}-CommonNN(Homogeneity,AMI)-default cost-minPTS{}"\
-                .format(method_name, "Extended", dataset_name, dataset_name, minPTS)
+            pathName = "/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.4/default cost function/{}/{}/{}-CommonNN(Homogeneity,AMI)-default cost-minPTS{}"\
+                .format(method_name, dataset_name, dataset_name, minPTS)
             plt.savefig(pathName)
 
             # Creating a figure that can be later changed
@@ -183,8 +185,8 @@ def evalMeasures(datasets, method_name, customTicking):
                 customTickingForYaxis(ax, [0, 1])
             fig.suptitle("{}-{}".format(method_name, datasets_dict["dataset_name"]))
 
-            pathName = "/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/{}/{}/{}/{}-CommonNN(Vmeasure,RAND)-default cost-minPTS{}"\
-                .format(method_name, "Extended", dataset_name, dataset_name, minPTS)
+            pathName = "/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.4/default cost function/{}/{}/{}-CommonNN(Vmeasure,RAND)-default cost-minPTS{}"\
+                .format(method_name, dataset_name, dataset_name, minPTS)
             plt.savefig(pathName)
 
             # Creating a figure that can be later changed
@@ -211,8 +213,8 @@ def evalMeasures(datasets, method_name, customTicking):
             if customTicking:
                 customTickingForYaxis(ax, [0])
 
-            pathName = "/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/{}/{}/{}/{}-commonNN(F1)-default cost-minPTS{}" \
-                .format(method_name, "Extended", dataset_name, dataset_name, minPTS)
+            pathName = "/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.4/default cost function/{}/{}/{}-commonNN(F1)-default cost-minPTS{}" \
+                .format(method_name, dataset_name, dataset_name, minPTS)
             plt.savefig(pathName)
 
             # Creating a figure that can be later changed
@@ -246,8 +248,9 @@ if __name__ == '__main__':
     customTicking = True
 
     datasets = ["aggregation"]
-    #     , "breast_cancer", "coil", "D31", "diabetes","digits", "flame", "genes",
-    #  "iris", "isolet", "moons_1000", "olivetti", "pathbased", "phoneme", "R15", "spiral", "swiss_roll2D",
-    # "swiss_roll3D", "Umist", "wine"]
+    # datasets = ["aggregation", "breast_cancer", "coil", "D31", "diabetes",
+    #             "flame", "genes", "iris", "isolet", "moons_1000",
+    #             "olivetti", "pathbased", "phoneme", "R15", "spiral",
+    #             "swiss_roll2D", "swiss_roll3D", "Umist", "wine", "digits"]
 
     evalMeasures(datasets, method_name, customTicking)

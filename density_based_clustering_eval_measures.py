@@ -11,6 +11,9 @@ import os
 import pickle
 import csv
 
+from minPtsSampling import generate_min_samples_range
+
+
 def customTickingForYaxis(ax, axesCounterList):
 
     if len(axesCounterList) > 1:
@@ -59,20 +62,20 @@ def evalMeasures(dataset_name, method_name, customTicking):
     f1_classic = []
     f1_d0 = []
 
-    if not os.path.exists('/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/{}/{}/{}'
-                                  .format(method_name, "Extended" ,dataset_name)):
-        os.mkdir('/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/{}/{}/{}'
-                 .format(method_name, "Extended", dataset_name))
+    if not os.path.exists('/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.4/default cost function/{}/{}'
+                                  .format(method_name,dataset_name)):
+        os.mkdir('/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.4/default cost function/{}/{}'
+                 .format(method_name, dataset_name))
 
     # open the file in the write mode
-    f = open('/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/{}/{}/{}/{}'
-             .format(method_name, "Extended", dataset_name, dataset_name + "silhouetteCoefficient"), 'w')
+    f = open('/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.4/default cost function/{}/{}/{}'
+             .format(method_name, dataset_name, dataset_name + "silhouetteCoefficient"), 'w')
     # create the csv writer
     writer = csv.writer(f)
     writer.writerow(["MinPts", "eps", "Silhouette coefficient classic", "Silhouette coefficient d0"])
 
-    min_pts_list = [2, 3, 5, 7, 9, 11, 13, 15, 17, 20, 25, 30, 35, 40, 50, 60, 80]
-    for j in min_pts_list:
+    minPTS_range = generate_min_samples_range(X.shape[1])
+    for j in minPTS_range:
         print("MinPts: {}".format(j))
         for i in datasets_dict["distances_interval"]:
 
@@ -160,8 +163,8 @@ def evalMeasures(dataset_name, method_name, customTicking):
 
         fig.suptitle("{}-MinPts:{}-{}".format(method_name, j, datasets_dict["dataset_name"]))
 
-        pathName = "/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/{}/{}/{}/{}-DBSCAN(Homogeneity,AMI)-default cost-Min_pts {}"\
-            .format(method_name, "Extended",dataset_name, dataset_name, j)
+        pathName = "/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.4/default cost function/{}/{}/{}-DBSCAN(Homogeneity,AMI)-default cost-Min_pts {}"\
+            .format(method_name,dataset_name, dataset_name, j)
         plt.savefig(pathName)
 
         # Creating a figure that can be later changed
@@ -202,8 +205,8 @@ def evalMeasures(dataset_name, method_name, customTicking):
             customTickingForYaxis(ax, [0, 1])  # *****************
         fig.suptitle("{}-MinPts:{}-{}".format(method_name, j, datasets_dict["dataset_name"]))
 
-        pathName = "/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/{}/{}/{}/{}-DBSCAN(Vmeasure,RAND)-default cost-Min_pts {}"\
-            .format(method_name, "Extended", dataset_name, dataset_name, j)
+        pathName = "/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.4/default cost function/{}/{}/{}-DBSCAN(Vmeasure,RAND)-default cost-Min_pts {}"\
+            .format(method_name, dataset_name, dataset_name, j)
         plt.savefig(pathName)
 
         # Creating a figure that can be later changed
@@ -227,8 +230,8 @@ def evalMeasures(dataset_name, method_name, customTicking):
         if customTicking:
             customTickingForYaxis(ax, [0])  # *****************
 
-        pathName = "/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/{}/{}/{}/{}-DBSCAN(f1)-default cost-Min_pts {}"\
-            .format(method_name, "Extended", dataset_name, dataset_name, j)
+        pathName = "/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.4/default cost function/{}/{}/{}-DBSCAN(f1)-default cost-Min_pts {}"\
+            .format(method_name, dataset_name, dataset_name, j)
         plt.savefig(pathName)
 
         # Creating a figure that can be later changed
