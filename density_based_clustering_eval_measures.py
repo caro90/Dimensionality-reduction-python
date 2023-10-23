@@ -264,10 +264,9 @@ if __name__ == '__main__':
     # Enable/Disable customTicking on the Y-axis
     customTicking = True
 
-    datasets = ["aggregation"]
-    # "breast_cancer", "coil", "D31", "diabetes","digits", "flame", "genes",
-    #  "iris", "isolet", "moons_1000", "olivetti", "pathbased", "phoneme", "R15", "spiral", "swiss_roll2D",
-    # "swiss_roll3D", "Umist", "wine"]
+    datasets = ["aggregation", "breast_cancer", "coil", "D31", "diabetes","digits", "flame", "genes",
+     "iris", "isolet", "moons_1000", "olivetti", "pathbased", "phoneme", "R15", "spiral", "swiss_roll2D",
+    "swiss_roll3D", "Umist", "wine"]
 
     for dataset in datasets:
         evalMeasures(dataset, method_name, customTicking)
