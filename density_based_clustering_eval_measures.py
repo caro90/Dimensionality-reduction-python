@@ -1,46 +1,15 @@
-# Testing several datasets using DBscan clustering
-# then evaluating the result using clustering evaluation metrics
-from matplotlib import ticker
 from sklearn.cluster import DBSCAN, OPTICS
 from sklearn import metrics
-import matplotlib.pyplot as plt
 from sklearn_extra.cluster import CommonNNClustering
 from loadDatasets import *
 from sklearn.metrics import f1_score
 import os
-import pickle
 import csv
-
 from minPtsSampling import generate_min_samples_range
+from density_based_clustering_plotting import *
 
-
-def customTickingForYaxis(ax, axesCounterList):
-
-    if len(axesCounterList) > 1:
-        for axesCounter in axesCounterList:
-
-            ymax1 = max(ax[axesCounter].lines[0].get_ydata())
-            ymax2 = max(ax[axesCounter].lines[1].get_ydata())
-
-            ax[axesCounter].yaxis.set_major_locator(ticker.FixedLocator([max(ymax1, ymax2)]))
-            ymax = max(ymax1, ymax2)
-            for finalYmax in ax[axesCounter].yaxis.get_ticklabels():
-                if ymax == ymax1:
-                    finalYmax.set_color("red")
-                else:
-                    finalYmax.set_color("blue")
-    else:
-        ymax1 = max(ax.lines[0].get_ydata())
-        ymax2 = max(ax.lines[1].get_ydata())
-
-        ax.yaxis.set_major_locator(ticker.FixedLocator([max(ymax1, ymax2)]))
-        ymax = max(ymax1, ymax2)
-        for finalYmax in ax.yaxis.get_ticklabels():
-            if ymax == ymax1:
-                finalYmax.set_color("red")
-            else:
-                finalYmax.set_color("blue")
-
+# Testing several datasets using DBscan clustering
+# then evaluating the result using clustering evaluation metrics
 
 def evalMeasures(dataset_name, method_name, customTicking):
 
@@ -74,10 +43,14 @@ def evalMeasures(dataset_name, method_name, customTicking):
     writer = csv.writer(f)
     writer.writerow(["MinPts", "eps", "Silhouette coefficient classic", "Silhouette coefficient d0"])
 
-    minPTS_range = generate_min_samples_range(X.shape[1])
+    # Adding d_best to the list of epsilon values that we use for the density based clustering algorithms
+    epsilon_values = datasets_dict["distances_interval"].tolist()
+    epsilon_values.append(datasets_dict["d_best"].item())
+    epsilon_values.sort()
+
+    minPTS_range = [2, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120]
     for j in minPTS_range:
-        print("MinPts: {}".format(j))
-        for i in datasets_dict["distances_interval"]:
+        for i in epsilon_values:
 
             if method_name == "DBSCAN":
                 # Classic DBscan approach:
@@ -97,13 +70,18 @@ def evalMeasures(dataset_name, method_name, customTicking):
                 db_d0_labels_pred = db_d0.labels_
             else:
                 # Classic OPTICS approach:
+
+                if j > X.shape[0]:
+                    # min_samples must be no greater than the number of samples in OPTICS algorithm
+                    break
+
                 optics_classic = OPTICS(min_samples=j).fit(datasets_dict["data"])
-                optics_classic_labels_pred = optics_classic.labels_
+                db_classic_labels_pred = optics_classic.labels_
 
                 # d0 OPTICS:
                 optics_d0 = OPTICS(eps=datasets_dict["d_best"], min_samples=j, metric="precomputed").fit(
                     datasets_dict["d0_distances"])
-                optics_d0_labels_pred = optics_d0.labels_
+                db_d0_labels_pred = optics_d0.labels_
 
             if len(set(db_classic_labels_pred)) >= 2 and len(set(db_d0_labels_pred)) >= 2:
                 # Silhouette Coefficient is only defined if number of labels is 2 <= n_labels <= n_samples - 1.
@@ -127,146 +105,55 @@ def evalMeasures(dataset_name, method_name, customTicking):
             f1_classic.append(f1_score(datasets_dict["labels"], db_classic_labels_pred, average='weighted'))
             f1_d0.append(f1_score(datasets_dict["labels"], db_d0_labels_pred, average='weighted'))
 
-        # Plotting
-        fig, ax = plt.subplots(1, 2)
+            if method_name == "OPTICS":
+                # OPTICS algorithm appears to be not depended on the epsilon value that is chosen
+                # Therefore we only use one epsilon value for the list of epsilon values
+                break
 
-        plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=None, hspace=0.90)
+        if method_name == "DBSCAN" or method_name == "CommonNN":
+            plotting_figures_DBSAN_CommonNN(epsilon_values, datasets_dict, db_classic_homogeneity_score, db_d0_homogeneity_score,
+                                            AMI_classic, AMI_d0, customTicking, method_name, dataset_name,
+                                            RAND_index_classic, RAND_index_d0, V_measure_classic, f1_classic,
+                                            f1_d0, V_measure_d0, j)
+            # Clear the lists for the next run
+            db_classic_homogeneity_score = []
+            db_d0_homogeneity_score = []
 
-        ax[0].plot(
-            datasets_dict["distances_interval"],
-            db_classic_homogeneity_score,
-            "r", label="classic")
+            AMI_classic = []
+            AMI_d0 = []
 
-        ax[0].plot(datasets_dict["distances_interval"],
-                      db_d0_homogeneity_score,
-                      "b--", label="d0-method")
+            RAND_index_classic = []
+            RAND_index_d0 = []
 
-        ax[0].legend(loc="upper right")
-        ax[0].set_title("Homogeneity")
-        ax[0].set_xlabel("epsilon distances")
+            V_measure_classic = []
+            V_measure_d0 = []
 
-        ax[1].plot(
-            datasets_dict["distances_interval"],
-            AMI_classic,
-            "r", label="classic")
-        ax[1].plot(
-            datasets_dict["distances_interval"],
-            AMI_d0,
-            "b--", label="d0-method")
+            f1_classic = []
+            f1_d0 = []
 
-        ax[1].legend(loc="upper right")
-        ax[1].set_title("AMI")
-        ax[1].set_xlabel("epsilon distances")
+    if method_name == "OPTICS":
+        plotting_figures_OPTICS(datasets_dict, db_classic_homogeneity_score,
+                                        db_d0_homogeneity_score,
+                                        AMI_classic, AMI_d0, customTicking, method_name, dataset_name,
+                                        RAND_index_classic, RAND_index_d0, V_measure_classic, f1_classic,
+                                        f1_d0, V_measure_d0, minPTS_range)
 
-        if customTicking:
-            customTickingForYaxis(ax, [0, 1])  # *****************
-
-        fig.suptitle("{}-MinPts:{}-{}".format(method_name, j, datasets_dict["dataset_name"]))
-
-        pathName = "/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.4/default cost function/{}/{}/{}-DBSCAN(Homogeneity,AMI)-default cost-Min_pts {}"\
-            .format(method_name,dataset_name, dataset_name, j)
-        plt.savefig(pathName)
-
-        # Creating a figure that can be later changed
-        with open(pathName + '.pkl', 'wb') as fid:
-            pickle.dump(ax, fid)
-
-        # *******************************************************
-        fig, ax = plt.subplots(1, 2)
-        plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=None, hspace=0.90)
-
-        ax[0].plot(
-            datasets_dict["distances_interval"],
-            RAND_index_classic,
-            "r", label="classic")
-        ax[0].plot(
-            datasets_dict["distances_interval"],
-            RAND_index_d0,
-            "b--", label="d0-method")
-
-        ax[0].legend(loc="upper right")
-        ax[0].set_title("Rand")
-        ax[0].set_xlabel("epsilon distances")
-
-        ax[1].plot(
-            datasets_dict["distances_interval"],
-            V_measure_classic,
-            "r", label="Classic")
-        ax[1].plot(
-            datasets_dict["distances_interval"],
-            V_measure_d0,
-            "b--", label="d0-method")
-
-        ax[1].legend(loc="upper right")
-        ax[1].set_title("Vmeasure ")
-        ax[1].set_xlabel("epsilon distances")
-
-        if customTicking:
-            customTickingForYaxis(ax, [0, 1])  # *****************
-        fig.suptitle("{}-MinPts:{}-{}".format(method_name, j, datasets_dict["dataset_name"]))
-
-        pathName = "/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.4/default cost function/{}/{}/{}-DBSCAN(Vmeasure,RAND)-default cost-Min_pts {}"\
-            .format(method_name, dataset_name, dataset_name, j)
-        plt.savefig(pathName)
-
-        # Creating a figure that can be later changed
-        with open(pathName + '.pkl', 'wb') as fid:
-            pickle.dump(ax, fid)
-
-        fig, ax = plt.subplots(1)
-        plt.plot(
-            datasets_dict["distances_interval"],
-            f1_classic,
-            "r", label="classic")
-        plt.plot(
-            datasets_dict["distances_interval"],
-            f1_d0,
-            "b--", label="d0-method")
-
-        plt.legend(loc="upper right")
-        fig.suptitle("{}-MinPts:{}-{}".format(method_name, j, datasets_dict["dataset_name"]))
-        plt.title("F1 score")
-
-        if customTicking:
-            customTickingForYaxis(ax, [0])  # *****************
-
-        pathName = "/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.4/default cost function/{}/{}/{}-DBSCAN(f1)-default cost-Min_pts {}"\
-            .format(method_name, dataset_name, dataset_name, j)
-        plt.savefig(pathName)
-
-        # Creating a figure that can be later changed
-        with open(pathName + '.pkl', 'wb') as fid:
-            pickle.dump(ax, fid)
-
-        # Clear the lists for the next run
-        db_classic_homogeneity_score = []
-        db_d0_homogeneity_score = []
-
-        AMI_classic = []
-        AMI_d0 = []
-
-        RAND_index_classic = []
-        RAND_index_d0 = []
-
-        V_measure_classic = []
-        V_measure_d0 = []
-
-        f1_classic = []
-        f1_d0 = []
 
     # Close csv file for the silhouette coefficient
     f.close()
 
-
 if __name__ == '__main__':
     # Method name:
-    method_name = "CommonNN"
+    method_name = "OPTICS"
     # Enable/Disable customTicking on the Y-axis
     customTicking = True
 
-    datasets = ["aggregation", "breast_cancer", "coil", "D31", "diabetes","digits", "flame", "genes",
-     "iris", "isolet", "moons_1000", "olivetti", "pathbased", "phoneme", "R15", "spiral", "swiss_roll2D",
-    "swiss_roll3D", "Umist", "wine"]
+    datasets = ["coil"]
+    # datasets = ["aggregation", "breast_cancer", "coil", "D31", "diabetes",
+    #             "digits", "flame", "genes", "iris", "isolet",
+    #             "moons_1000", "olivetti", "pathbased", "phoneme", "R15",
+    #             "spiral", "swiss_roll2D", "swiss_roll3D", "Umist", "wine"]
 
     for dataset in datasets:
+        print(f"dataset: {dataset} started")
         evalMeasures(dataset, method_name, customTicking)
