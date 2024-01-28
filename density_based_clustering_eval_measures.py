@@ -1,11 +1,10 @@
-from sklearn.cluster import DBSCAN, OPTICS
+from sklearn.cluster import DBSCAN
 from sklearn import metrics
 from sklearn_extra.cluster import CommonNNClustering
 from loadDatasets import *
 from sklearn.metrics import f1_score
 import os
 import csv
-from minPtsSampling import generate_min_samples_range
 from density_based_clustering_plotting import *
 
 # Testing several datasets using DBscan clustering
@@ -30,6 +29,11 @@ def evalMeasures(dataset_name, method_name, customTicking):
 
     f1_classic = []
     f1_d0 = []
+
+    if not os.path.exists('/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.4/'
+                          'default cost function/{}'.format(method_name)):
+        os.mkdir('/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.4/'
+                 'default cost function/{}'.format(method_name))
 
     if not os.path.exists('/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.4/default cost function/{}/{}'
                                   .format(method_name,dataset_name)):
@@ -68,20 +72,6 @@ def evalMeasures(dataset_name, method_name, customTicking):
                 db_d0 = CommonNNClustering(eps=i, min_samples=j, metric="precomputed").fit(
                     datasets_dict["d0_distances"])
                 db_d0_labels_pred = db_d0.labels_
-            else:
-                # Classic OPTICS approach:
-
-                if j > X.shape[0]:
-                    # min_samples must be no greater than the number of samples in OPTICS algorithm
-                    break
-
-                optics_classic = OPTICS(min_samples=j).fit(datasets_dict["data"])
-                db_classic_labels_pred = optics_classic.labels_
-
-                # d0 OPTICS:
-                optics_d0 = OPTICS(eps=datasets_dict["d_best"], min_samples=j, metric="precomputed").fit(
-                    datasets_dict["d0_distances"])
-                db_d0_labels_pred = optics_d0.labels_
 
             if len(set(db_classic_labels_pred)) >= 2 and len(set(db_d0_labels_pred)) >= 2:
                 # Silhouette Coefficient is only defined if number of labels is 2 <= n_labels <= n_samples - 1.
@@ -105,54 +95,41 @@ def evalMeasures(dataset_name, method_name, customTicking):
             f1_classic.append(f1_score(datasets_dict["labels"], db_classic_labels_pred, average='weighted'))
             f1_d0.append(f1_score(datasets_dict["labels"], db_d0_labels_pred, average='weighted'))
 
-            if method_name == "OPTICS":
-                # OPTICS algorithm appears to be not depended on the epsilon value that is chosen
-                # Therefore we only use one epsilon value for the list of epsilon values
-                break
 
-        if method_name == "DBSCAN" or method_name == "CommonNN":
-            plotting_figures_DBSAN_CommonNN(epsilon_values, datasets_dict, db_classic_homogeneity_score, db_d0_homogeneity_score,
-                                            AMI_classic, AMI_d0, customTicking, method_name, dataset_name,
-                                            RAND_index_classic, RAND_index_d0, V_measure_classic, f1_classic,
-                                            f1_d0, V_measure_d0, j)
-            # Clear the lists for the next run
-            db_classic_homogeneity_score = []
-            db_d0_homogeneity_score = []
-
-            AMI_classic = []
-            AMI_d0 = []
-
-            RAND_index_classic = []
-            RAND_index_d0 = []
-
-            V_measure_classic = []
-            V_measure_d0 = []
-
-            f1_classic = []
-            f1_d0 = []
-
-    if method_name == "OPTICS":
-        plotting_figures_OPTICS(datasets_dict, db_classic_homogeneity_score,
-                                        db_d0_homogeneity_score,
+        plotting_figures_DBSAN_CommonNN(epsilon_values, datasets_dict, db_classic_homogeneity_score, db_d0_homogeneity_score,
                                         AMI_classic, AMI_d0, customTicking, method_name, dataset_name,
                                         RAND_index_classic, RAND_index_d0, V_measure_classic, f1_classic,
-                                        f1_d0, V_measure_d0, minPTS_range)
+                                        f1_d0, V_measure_d0, j)
 
+        # Clear the lists for the next run
+        db_classic_homogeneity_score = []
+        db_d0_homogeneity_score = []
+
+        AMI_classic = []
+        AMI_d0 = []
+
+        RAND_index_classic = []
+        RAND_index_d0 = []
+
+        V_measure_classic = []
+        V_measure_d0 = []
+
+        f1_classic = []
+        f1_d0 = []
 
     # Close csv file for the silhouette coefficient
     f.close()
 
 if __name__ == '__main__':
-    # Method name:
-    method_name = "OPTICS"
+    # Method name, use DBSCAN or CommonNN:
+    method_name = "DBSCAN"
     # Enable/Disable customTicking on the Y-axis
     customTicking = True
 
-    datasets = ["coil"]
-    # datasets = ["aggregation", "breast_cancer", "coil", "D31", "diabetes",
-    #             "digits", "flame", "genes", "iris", "isolet",
-    #             "moons_1000", "olivetti", "pathbased", "phoneme", "R15",
-    #             "spiral", "swiss_roll2D", "swiss_roll3D", "Umist", "wine"]
+    datasets = ["aggregation", "breast_cancer", "coil", "D31", "diabetes",
+                "digits", "flame", "genes", "iris", "isolet",
+                "moons_1000", "olivetti", "pathbased", "phoneme", "R15",
+                "spiral", "swiss_roll2D", "swiss_roll3D", "Umist", "wine"]
 
     for dataset in datasets:
         print(f"dataset: {dataset} started")

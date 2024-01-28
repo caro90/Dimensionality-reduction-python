@@ -4,15 +4,21 @@ from sklearn_extra.cluster import KMedoids
 from loadDatasets import load_datasets
 import os
 
+method_name = "Kmedoids"
 mylist = os.listdir("/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/DBSCAN")
 mylist.remove("Extended")
 mylist.remove("Processed datasets")
 # 1 - Write each dataset in each own csv file
 # 2 - or aggregate all dataset results in one csv file
 csv_formatting_flag = 2
+
+if not os.path.exists('/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.4/'
+                      'default cost function median/{}'.format(method_name)):
+    os.mkdir('/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.4/'
+             'default cost function median/{}'.format(method_name))
 if csv_formatting_flag == 2:
     f = open(
-        '/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.4/default cost function/Kmedoids/kmedoids evaluation experiments', 'w')
+        f'/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.4/default cost function median/{method_name}/kmedoids evaluation experiments', 'w')
     writer = csv.writer(f)
     writer.writerow(
         ["Dataset name", "Number of labels", "Dimensions", "Number of points", "Homogeneity classic", "Homogeneity d0",
@@ -56,7 +62,7 @@ for dataset in mylist:
 
     if csv_formatting_flag == 1:
         # open the file in the write mode
-        f = open('/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/Kmedoids/{}-kmedoids'.format(dataset_name), 'w')
+        f = open('/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.4/default cost function median/{}/{}-kmedoids'.format(method_name, dataset_name), 'w')
         # create the csv writer
         writer = csv.writer(f)
         writer.writerow(["Number of labels", "Dimensions", "Number of points","Homogeneity classic", "Homogeneity d0", "Vmeasure classic", "Vmeasure d0", "RAND classic", "RAND d0", "AMI classic",
