@@ -10,9 +10,9 @@ from density_based_clustering_plotting import *
 # Testing several datasets using DBscan clustering
 # then evaluating the result using clustering evaluation metrics
 
-def evalMeasures(dataset_name, method_name, customTicking):
+def evalMeasures(dataset_name, method_name, customTicking, version, cost_function, alternative_cost):
 
-    datasets_dict = load_datasets(dataset_name)
+    datasets_dict = load_datasets(dataset_name, alternative_cost, version, cost_function)
     X = datasets_dict["data"]
 
     db_classic_homogeneity_score = []
@@ -30,19 +30,19 @@ def evalMeasures(dataset_name, method_name, customTicking):
     f1_classic = []
     f1_d0 = []
 
-    if not os.path.exists('/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.4/'
-                          'default cost function/{}'.format(method_name)):
-        os.mkdir('/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.4/'
-                 'default cost function/{}'.format(method_name))
+    if not os.path.exists(f'/home/arch/PycharmProjects/Dimensionality reduction results/{version}/'
+                          f'{cost_function}/{method_name}'):
+        os.mkdir(f'/home/arch/PycharmProjects/Dimensionality reduction results/{version}/'
+                 f'{cost_function}/{method_name}')
 
-    if not os.path.exists('/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.4/default cost function/{}/{}'
-                                  .format(method_name,dataset_name)):
-        os.mkdir('/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.4/default cost function/{}/{}'
-                 .format(method_name, dataset_name))
+    if not os.path.exists(f'/home/arch/PycharmProjects/Dimensionality reduction results/{version}/'
+                          f'{cost_function}/{method_name}/{dataset_name}'):
+        os.mkdir(f'/home/arch/PycharmProjects/Dimensionality reduction results/{version}/{cost_function}/'
+                 f'{method_name}/{dataset_name}')
 
     # open the file in the write mode
-    f = open('/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.4/default cost function/{}/{}/{}'
-             .format(method_name, dataset_name, dataset_name + "silhouetteCoefficient"), 'w')
+    f = open(f'/home/arch/PycharmProjects/Dimensionality reduction results/{version}/{cost_function}/'
+             f'{method_name}/{dataset_name}/{dataset_name + "silhouetteCoefficient"}', 'w')
     # create the csv writer
     writer = csv.writer(f)
     writer.writerow(["MinPts", "eps", "Silhouette coefficient classic", "Silhouette coefficient d0"])
@@ -99,7 +99,7 @@ def evalMeasures(dataset_name, method_name, customTicking):
         plotting_figures_DBSAN_CommonNN(epsilon_values, datasets_dict, db_classic_homogeneity_score, db_d0_homogeneity_score,
                                         AMI_classic, AMI_d0, customTicking, method_name, dataset_name,
                                         RAND_index_classic, RAND_index_d0, V_measure_classic, f1_classic,
-                                        f1_d0, V_measure_d0, j)
+                                        f1_d0, V_measure_d0, j, version, cost_function)
 
         # Clear the lists for the next run
         db_classic_homogeneity_score = []
@@ -122,7 +122,12 @@ def evalMeasures(dataset_name, method_name, customTicking):
 
 if __name__ == '__main__':
     # Method name, use DBSCAN or CommonNN:
-    method_name = "DBSCAN"
+    method_name = "CommonNN"
+    Version = "Version 0.5"
+    Cost_function = "cost 4"
+    # Is the cost other than the default?:
+    alternative_cost = True
+
     # Enable/Disable customTicking on the Y-axis
     customTicking = True
 
@@ -133,4 +138,4 @@ if __name__ == '__main__':
 
     for dataset in datasets:
         print(f"dataset: {dataset} started")
-        evalMeasures(dataset, method_name, customTicking)
+        evalMeasures(dataset, method_name, customTicking, Version, Cost_function, alternative_cost)

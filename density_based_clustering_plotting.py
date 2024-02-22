@@ -44,7 +44,7 @@ def customTickingForXaxis(ax, axesCounterList, d_best, epsilon_values): # check 
 def plotting_figures_DBSAN_CommonNN(epsilon_values, datasets_dict, db_classic_homogeneity_score, db_d0_homogeneity_score,
                                     AMI_classic, AMI_d0, customTicking, method_name, dataset_name,
                                     RAND_index_classic, RAND_index_d0, V_measure_classic, f1_classic, f1_d0,
-                                    V_measure_d0, j):
+                                    V_measure_d0, j, version, cost_function):
     # Plotting
     fig, ax = plt.subplots(1, 2)
 
@@ -81,8 +81,8 @@ def plotting_figures_DBSAN_CommonNN(epsilon_values, datasets_dict, db_classic_ho
 
     fig.suptitle("{}-MinPts:{}-{}".format(method_name, j, datasets_dict["dataset_name"]))
 
-    pathName = "/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.4/default cost function/{}/{}/{}-DBSCAN(Homogeneity,AMI)-default cost-Min_pts {}" \
-        .format(method_name, dataset_name, dataset_name, j)
+    pathName = (f"/home/arch/PycharmProjects/Dimensionality reduction results/{version}/{cost_function}/"
+                f"{method_name}/{dataset_name}/{dataset_name}-DBSCAN(Homogeneity,AMI)-{cost_function}-Min_pts {j}")
     plt.savefig(pathName)
 
     # Creating a figure that can be later changed
@@ -123,8 +123,8 @@ def plotting_figures_DBSAN_CommonNN(epsilon_values, datasets_dict, db_classic_ho
         customTickingForYaxis(ax, [0, 1])  # *****************
     fig.suptitle("{}-MinPts:{}-{}".format(method_name, j, datasets_dict["dataset_name"]))
 
-    pathName = "/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.4/default cost function/{}/{}/{}-DBSCAN(Vmeasure,RAND)-default cost-Min_pts {}" \
-        .format(method_name, dataset_name, dataset_name, j)
+    pathName = (f"/home/arch/PycharmProjects/Dimensionality reduction results/{version}/{cost_function}/"
+                f"{method_name}/{dataset_name}/{dataset_name}-DBSCAN(Vmeasure,RAND)-{cost_function}-Min_pts {j}")
     plt.savefig(pathName)
 
     # Creating a figure that can be later changed
@@ -148,8 +148,8 @@ def plotting_figures_DBSAN_CommonNN(epsilon_values, datasets_dict, db_classic_ho
     if customTicking:
         customTickingForYaxis(ax, [0])
 
-    pathName = "/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.4/default cost function/{}/{}/{}-DBSCAN(f1)-default cost-Min_pts {}" \
-        .format(method_name, dataset_name, dataset_name, j)
+    pathName = (f"/home/arch/PycharmProjects/Dimensionality reduction results/{version}/{cost_function}/"
+                f"{method_name}/{dataset_name}/{dataset_name}-DBSCAN(f1)-{cost_function}-Min_pts {j}")
     plt.savefig(pathName)
 
     # Creating a figure that can be later changed
@@ -161,7 +161,7 @@ def plotting_figures_OPTICS(datasets_dict, db_classic_homogeneity_score,
                         db_d0_homogeneity_score,
                         AMI_classic, AMI_d0, customTicking, method_name, dataset_name,
                         RAND_index_classic, RAND_index_d0, V_measure_classic, f1_classic,
-                        f1_d0, V_measure_d0, min_pts_list):
+                        f1_d0, V_measure_d0, min_pts_list, version, cost_function):
     # Plotting
     fig, ax = plt.subplots(1, 2)
 
@@ -197,8 +197,8 @@ def plotting_figures_OPTICS(datasets_dict, db_classic_homogeneity_score,
     if customTicking:
         customTickingForYaxis(ax, [0, 1])
 
-    pathName = "/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.4/default cost function/{}/{}/{}-OPTICS(Homogeneity,AMI)-default cost" \
-        .format(method_name, dataset_name, dataset_name)
+    pathName = (f"/home/arch/PycharmProjects/Dimensionality reduction results/{version}/{cost_function}/"
+                f"{method_name}/{dataset_name}/{dataset_name}-{method_name}(Homogeneity,AMI)-{cost_function}")
     plt.savefig(pathName)
 
     # Creating a figure that can be later changed
@@ -238,8 +238,8 @@ def plotting_figures_OPTICS(datasets_dict, db_classic_homogeneity_score,
     if customTicking:
         customTickingForYaxis(ax, [0, 1])
 
-    pathName = "/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.4/default cost function/{}/{}/{}-OPTICS(Vmeasure,RAND)-default cost" \
-        .format(method_name, dataset_name, dataset_name)
+    pathName = (f"/home/arch/PycharmProjects/Dimensionality reduction results/{version}/{cost_function}/"
+                f"{method_name}/{dataset_name}/{dataset_name}-{method_name}(Vmeasure,RAND)-{cost_function}")
     plt.savefig(pathName)
 
     # Creating a figure that can be later changed
@@ -263,8 +263,8 @@ def plotting_figures_OPTICS(datasets_dict, db_classic_homogeneity_score,
     if customTicking:
         customTickingForYaxis(ax, [0])
 
-    pathName = "/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.4/default cost function/{}/{}/{}-OPTICS(f1)-default cost" \
-        .format(method_name, dataset_name, dataset_name)
+    pathName = (f"/home/arch/PycharmProjects/Dimensionality reduction results/{version}/"
+                f"{cost_function}/{method_name}/{dataset_name}/{dataset_name}-OPTICS(f1)-{cost_function}")
     plt.savefig(pathName)
 
     # Creating a figure that can be later changed

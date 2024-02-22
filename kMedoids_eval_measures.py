@@ -4,39 +4,16 @@ from sklearn_extra.cluster import KMedoids
 from loadDatasets import load_datasets
 import os
 
-method_name = "Kmedoids"
-mylist = os.listdir("/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.3/default cost function/DBSCAN")
-mylist.remove("Extended")
-mylist.remove("Processed datasets")
-# 1 - Write each dataset in each own csv file
-# 2 - or aggregate all dataset results in one csv file
-csv_formatting_flag = 2
+def evalMeasures(dataset_name, method_name, version, cost_function, alternative_cost, csv_formatting_flag, writer):
 
-if not os.path.exists('/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.4/'
-                      'default cost function median/{}'.format(method_name)):
-    os.mkdir('/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.4/'
-             'default cost function median/{}'.format(method_name))
-if csv_formatting_flag == 2:
-    f = open(
-        f'/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.4/default cost function median/{method_name}/kmedoids evaluation experiments', 'w')
-    writer = csv.writer(f)
-    writer.writerow(
-        ["Dataset name", "Number of labels", "Dimensions", "Number of points", "Homogeneity classic", "Homogeneity d0",
-         "Vmeasure classic", "Vmeasure d0", "RAND classic", "RAND d0", "AMI classic",
-         "AMI d0", "NMI classic", "NMI d0", "F1 classic", "F1 d0", "Silhouette coefficient classic",
-         "Silhouette coefficient d0"])
-
-for dataset in mylist:
-
-    dataset_name = dataset
-    datasets_dict = load_datasets(dataset_name)
-    numberOfLabels = max(datasets_dict["labels"]) + 1
+    datasets_dict = load_datasets(dataset_name, alternative_cost, version, cost_function)
+    number_of_labels = max(datasets_dict["labels"]) + 1
 
     # Classic Kmedoids classic:
-    db_classic = KMedoids(numberOfLabels).fit(datasets_dict["data"])
+    db_classic = KMedoids(number_of_labels).fit(datasets_dict["data"])
     db_classic_labels_pred = db_classic.labels_
     # D0 Kmedoids:
-    db_d0 = KMedoids(numberOfLabels, metric="precomputed").fit(datasets_dict["d0_distances"])
+    db_d0 = KMedoids(number_of_labels, metric="precomputed").fit(datasets_dict["d0_distances"])
     db_d0_labels_pred = db_d0.labels_
 
     homo_classic = metrics.homogeneity_score(datasets_dict["labels"], db_classic_labels_pred)
@@ -62,22 +39,68 @@ for dataset in mylist:
 
     if csv_formatting_flag == 1:
         # open the file in the write mode
-        f = open('/home/arch/PycharmProjects/Dimensionality reduction results/Version 0.4/default cost function median/{}/{}-kmedoids'.format(method_name, dataset_name), 'w')
+        f = open(f'/home/arch/PycharmProjects/Dimensionality reduction results/{version}/'
+                 f'{cost_function}/{method_name}/{dataset_name}-kmedoids', 'w')
         # create the csv writer
         writer = csv.writer(f)
-        writer.writerow(["Number of labels", "Dimensions", "Number of points","Homogeneity classic", "Homogeneity d0", "Vmeasure classic", "Vmeasure d0", "RAND classic", "RAND d0", "AMI classic",
-                         "AMI d0", "NMI classic", "NMI d0", "F1 classic", "F1 d0", "Silhouette coefficient classic", "Silhouette coefficient d0"])
+        writer.writerow(["Number of labels", "Dimensions", "Number of points","Homogeneity classic", "Homogeneity d0",
+                         "Vmeasure classic", "Vmeasure d0", "RAND classic", "RAND d0", "AMI classic",
+                         "AMI d0", "NMI classic", "NMI d0", "F1 classic", "F1 d0", "Silhouette coefficient classic",
+                         "Silhouette coefficient d0"])
 
-        writer.writerow([numberOfLabels, homo_classic, homo_d0, vmeasure_classic, vmeasure_d0, rand_classic, rand_d0, ami_classic, ami_d0, nmi_classic, nmi_d0,
-                                     f1_classic, f1_d0,metrics.silhouette_score(datasets_dict["data"], db_classic_labels_pred),
-                                     metrics.silhouette_score(datasets_dict["d0_distances"], db_d0_labels_pred, metric="precomputed")])
+        writer.writerow([number_of_labels, homo_classic, homo_d0, vmeasure_classic, vmeasure_d0, rand_classic, rand_d0,
+                         ami_classic, ami_d0, nmi_classic, nmi_d0, f1_classic, f1_d0,
+                         metrics.silhouette_score(datasets_dict["data"], db_classic_labels_pred),
+                         metrics.silhouette_score(datasets_dict["d0_distances"], db_d0_labels_pred, metric="precomputed")])
         f.close()
     else:
         writer.writerow(
-            [dataset_name, numberOfLabels, datasets_dict["data"].shape[1], datasets_dict["data"].shape[0], homo_classic, homo_d0, vmeasure_classic, vmeasure_d0, rand_classic, rand_d0, ami_classic,
-             ami_d0, nmi_classic, nmi_d0,
-             f1_classic, f1_d0, metrics.silhouette_score(datasets_dict["data"], db_classic_labels_pred),
-             metrics.silhouette_score(datasets_dict["d0_distances"], db_d0_labels_pred, metric="precomputed")])
+            [dataset_name, number_of_labels, datasets_dict["data"].shape[1], datasets_dict["data"].shape[0],
+             homo_classic, homo_d0, vmeasure_classic, vmeasure_d0, rand_classic, rand_d0, ami_classic,
+             ami_d0, nmi_classic, nmi_d0, f1_classic, f1_d0, metrics.silhouette_score(datasets_dict["data"],
+             db_classic_labels_pred), metrics.silhouette_score(datasets_dict["d0_distances"],
+             db_d0_labels_pred, metric="precomputed")])
 
 
-f.close()
+
+
+if __name__ == '__main__':
+
+    # Method name:
+    method_name = "Kmedoids"
+    version = "Version 0.5"
+    cost_function = "cost 4"
+
+    # Is the cost other than the default?:
+    alternative_cost = True
+
+    # 1 - Write each dataset in each own csv file
+    # 2 - or aggregate all dataset results in one csv file
+    csv_formatting_flag = 2
+
+    datasets = ["aggregation", "breast_cancer", "coil", "D31", "diabetes",
+                "digits", "flame", "genes", "iris", "isolet",
+                "moons_1000", "olivetti", "pathbased", "phoneme", "R15",
+                "spiral", "swiss_roll2D", "swiss_roll3D", "Umist", "wine"]
+
+    if not os.path.exists(f'/home/arch/PycharmProjects/Dimensionality reduction results/{version}/'
+                          f'{cost_function}/{method_name}'):
+        os.mkdir(f'/home/arch/PycharmProjects/Dimensionality reduction results/{version}/'
+                 f'{cost_function}/{method_name}')
+    if csv_formatting_flag == 2:
+        f = open(
+            f'/home/arch/PycharmProjects/Dimensionality reduction results/{version}/{cost_function}/'
+            f'{method_name}/kmedoids evaluation experiments', 'w')
+        writer = csv.writer(f)
+        writer.writerow(
+            ["Dataset name", "Number of labels", "Dimensions", "Number of points", "Homogeneity classic",
+             "Homogeneity d0",
+             "Vmeasure classic", "Vmeasure d0", "RAND classic", "RAND d0", "AMI classic",
+             "AMI d0", "NMI classic", "NMI d0", "F1 classic", "F1 d0", "Silhouette coefficient classic",
+             "Silhouette coefficient d0"])
+
+    for dataset in datasets:
+        print(f"dataset: {dataset} started")
+        evalMeasures(dataset, method_name, version, cost_function, alternative_cost, csv_formatting_flag, writer)
+
+    f.close()
