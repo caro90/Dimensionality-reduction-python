@@ -7,11 +7,15 @@ import os
 import csv
 from density_based_clustering_plotting import *
 
+# Testing several datasets using DBscan and CommonNN clustering
+# then evaluating the result using clustering evaluation metrics
+# In the following function we calculate the clustering for a given dataset
+# and then we assess its score using several clustering metrics from sklearn. The result
+# is plotted in a single plot with 3 figures, (classic, piecewise linear d0, alternative d0
+# (where we use an alternative cost definition))
+
 def additional_evalMeasures(dataset_name, method_name, customTicking, version, cost_function, cost_function2,
                             path_cost_function, path_cost_function2):
-
-    # Testing several datasets using DBscan and CommonNN clustering
-    # then evaluating the result using clustering evaluation metrics
 
     # Loading the datasets
     datasets_dict = load_datasets(dataset_name, path_cost_function)
@@ -39,6 +43,7 @@ def additional_evalMeasures(dataset_name, method_name, customTicking, version, c
     f1_d0 = []
     f1_d0_alternative = []
 
+    # Save location of the figures:
     if not os.path.exists(f'/home/arch/PycharmProjects/Dimensionality reduction results/{version}/'
                           f'{cost_function}+{cost_function2}'):
         os.mkdir(f'/home/arch/PycharmProjects/Dimensionality reduction results/{version}/'
@@ -59,7 +64,8 @@ def additional_evalMeasures(dataset_name, method_name, customTicking, version, c
              f'{method_name}/{dataset_name}/{dataset_name + "silhouetteCoefficient"}', 'w')
     # create the csv writer
     writer = csv.writer(f)
-    writer.writerow(["MinPts", "eps", "Silhouette coefficient classic", "Silhouette coefficient d0", "Silhouette coefficient alternative cost d0"])
+    writer.writerow(["MinPts", "eps", "Silhouette coefficient classic", "Silhouette coefficient d0",
+                     "Silhouette coefficient alternative cost d0"])
 
     # Adding d_best to the list of epsilon values that we use for the density based clustering algorithms
     epsilon_values = datasets_dict["distances_interval"].tolist()
@@ -184,12 +190,10 @@ if __name__ == '__main__':
     # Enable/Disable customTicking on the Y-axis
     customTicking = True
 
-    #"aggregation", "breast_cancer", "coil", "D31", "diabetes",
-                #"digits", "flame", "genes", "iris", "isolet",
-                #"moons_1000", "olivetti", "pathbased", "phoneme", "R15",
-                #"spiral", "swiss_roll2D", "swiss_roll3D", "Umist", "wine"
-
-    datasets = ["wine"]
+    datasets = ["aggregation", "breast_cancer", "coil", "D31", "diabetes",
+                "digits", "flame", "genes", "iris", "isolet",
+                "moons_1000", "olivetti", "pathbased", "phoneme", "R15",
+                "spiral", "swiss_roll2D", "swiss_roll3D", "Umist", "wine"]
 
     for dataset in datasets:
         print(f"dataset: {dataset} started")

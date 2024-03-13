@@ -4,11 +4,15 @@ from sklearn_extra.cluster import KMedoids
 from loadDatasets import load_datasets
 import os
 
+# Testing several datasets using Kmedoids clustering
+# then evaluating the result using clustering evaluation metrics
+# In the following function we calculate the clustering for a given dataset
+# and then we assess its score using several clustering metrics from sklearn. The result
+# is plotted in a single plot with 3 figures, (classic, piecewise linear d0, alternative d0
+# (where we use an alternative cost definition))
+
 def additional_evalMeasures(dataset_name, method_name, version, cost_function,
                             writer, path_cost_function, path_cost_function2):
-
-    # Testing several datasets using Kmedoids clustering
-    # then evaluating the result using clustering evaluation metrics
 
     datasets_dict1 = load_datasets(dataset_name, path_cost_function)
     datasets_dict2 = load_datasets(dataset_name, path_cost_function2)
@@ -52,9 +56,7 @@ def additional_evalMeasures(dataset_name, method_name, version, cost_function,
     f1_d0 = metrics.f1_score(datasets_dict1["labels"], db_d0_labels_pred, average='weighted')
     f1_d0_alternative = metrics.f1_score(datasets_dict2["labels"], db_d0_alternative_labels_pred, average='weighted')
 
-    # Saving the results into a csv file
-    # *******************************************************
-
+    # Saving the results into a csv file:
     writer.writerow(
         [dataset_name, number_of_labels, datasets_dict1["data"].shape[1], datasets_dict1["data"].shape[0],
          datasets_dict1["d_best"][0][0], datasets_dict2["d_best"][0][0],
@@ -85,6 +87,7 @@ if __name__ == '__main__':
                 "moons_1000", "olivetti", "pathbased", "phoneme", "R15",
                 "spiral", "swiss_roll2D", "swiss_roll3D", "Umist", "wine"]
 
+    # Save location of the figures:
     if not os.path.exists(f'/home/arch/PycharmProjects/Dimensionality reduction results/{version}/'
                           f'{cost_function}+{cost_function2}/{method_name}'):
         os.mkdir(f'/home/arch/PycharmProjects/Dimensionality reduction results/{version}/'

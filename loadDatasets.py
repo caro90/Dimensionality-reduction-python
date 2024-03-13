@@ -1,6 +1,8 @@
 import scipy.io
 import numpy as np
 
+# Function to load precomputed datasets along with their precomputed distance maps (euclidean and d0-distance based)
+
 def load_datasets(dataset_name, path_cost_function):
     # Load datasets:
     X = scipy.io.loadmat(f'/home/arch/Matlab/Dimensionality Reduction/mat_files/{dataset_name}.mat')
