@@ -13,8 +13,10 @@ from density_based_clustering_plotting import *
 # is plotted in a single plot with 3 figures, (classic, piecewise linear d0, alternative d0
 # (where we use an alternative cost definition))
 
-def additional_evalMeasures(dataset_name, method_name, customTicking, version, cost_function, cost_function2,
-                            path_cost_function, path_cost_function2):
+
+def additional_eval_measures(dataset_name, method_name, customTicking, version, cost_function, cost_function2,
+                            path_cost_function, path_cost_function2,
+                            sampling_method, num_of_dijkstra_backtracking_points):
 
     # Loading the datasets
     datasets_dict = load_datasets(dataset_name, path_cost_function)
@@ -43,25 +45,16 @@ def additional_evalMeasures(dataset_name, method_name, customTicking, version, c
     f1_d0_alternative = []
 
     # Save location of the figures:
-    if not os.path.exists(f'/home/arch/PycharmProjects/Dimensionality reduction results/{version}/'
-                          f'{cost_function}+{cost_function2}'):
-        os.mkdir(f'/home/arch/PycharmProjects/Dimensionality reduction results/{version}/'
-                 f'{cost_function}+{cost_function2}')
+    save_loc_folder_path = (f'/home/arch/PycharmProjects/Dimensionality reduction results/{version}/{sampling_method}/'
+                   f'{cost_function}+{cost_function2}/{num_of_dijkstra_backtracking_points}/'
+                   f'{method_name}/{dataset_name}')
 
-    if not os.path.exists(f'/home/arch/PycharmProjects/Dimensionality reduction results/{version}/'
-                          f'{cost_function}+{cost_function2}/{method_name}'):
-        os.mkdir(f'/home/arch/PycharmProjects/Dimensionality reduction results/{version}/'
-                 f'{cost_function}+{cost_function2}/{method_name}')
-
-    if not os.path.exists(f'/home/arch/PycharmProjects/Dimensionality reduction results/{version}/'
-                          f'{cost_function}+{cost_function2}/{method_name}/{dataset_name}'):
-        os.mkdir(
-            f'/home/arch/PycharmProjects/Dimensionality reduction results/{version}/{cost_function}+{cost_function2}/'
-            f'{method_name}/{dataset_name}')
+    # If the intermediate folders do not exist, then they are being created
+    os.makedirs(save_loc_folder_path, exist_ok=True)
 
     # open the file in the write mode
-    f = open(f'/home/arch/PycharmProjects/Dimensionality reduction results/{version}/{cost_function}+{cost_function2}/'
-             f'{method_name}/{dataset_name}/{dataset_name + "silhouetteCoefficient"}', 'w')
+    f = open(f'{save_loc_folder_path}/{dataset_name + "silhouetteCoefficient"}', 'w')
+
     # create the csv writer
     writer = csv.writer(f)
     writer.writerow(["MinPts", "Silhouette coefficient classic", "Silhouette coefficient d0",
@@ -138,7 +131,9 @@ def additional_evalMeasures(dataset_name, method_name, customTicking, version, c
                             rand_index_d0,
                             rand_index_d0_alternative, v_measure_classic,
                             f1_classic, f1_d0, f1_d0_alternative, v_measure_d0,
-                            v_measure_d0_alternative, min_pts_range, version, f"{cost_function}+{cost_function2}")
+                            v_measure_d0_alternative, min_pts_range,
+                            f"{cost_function}+{cost_function2}",
+                            save_loc_folder_path)
 
     # Close csv file for the silhouette coefficient
     f.close()
@@ -149,6 +144,8 @@ if __name__ == '__main__':
     method_name = "OPTICS"
 
     Version = "Version 0.5"
+    sampling_method = "d0_distances_sin_method"
+    num_of_dijkstra_backtracking_points = "20 percent dijkstra points - 100 percent backtracking points"
 
     # Select the two cost function to be compared against the classic
     cost_function = "default cost"
@@ -158,7 +155,7 @@ if __name__ == '__main__':
     customTicking = True
 
     datasets = ["aggregation", "breast_cancer", "coil", "D31", "diabetes",
-                "digits", "flame", "genes", "iris","isolet",
+                "digits", "flame", "genes", "iris", "isolet",
                 "moons_1000", "olivetti", "pathbased", "phoneme", "R15",
                 "spiral", "swiss_roll2D", "swiss_roll3D", "Umist", "wine"]
 
@@ -167,14 +164,15 @@ if __name__ == '__main__':
 
         # Setting the right path to load the right precomputed datasets
         path_cost_function = f'/home/arch/Matlab/Dimensionality Reduction/mat_files/{Version}/' \
-                             f'd0_distances_sin_method/{cost_function}/' \
-                             f'20 percent dijkstra points - 100 percent backtracking points - lambda 10000/' \
+                             f'{sampling_method}/{cost_function}/' \
+                             f'{num_of_dijkstra_backtracking_points} - lambda 10000/' \
                              f'{dataset}_d0_distances.mat'
 
         path_cost_function2 = f'/home/arch/Matlab/Dimensionality Reduction/mat_files/{Version}/' \
-                              f'd0_distances_sin_method/{cost_function2}/' \
-                              f'20 percent dijkstra points - 100 percent backtracking points/' \
+                              f'{sampling_method}/{cost_function2}/' \
+                              f'{num_of_dijkstra_backtracking_points}/' \
                               f'{dataset}_d0_distances.mat'
 
-        additional_evalMeasures(dataset, method_name, customTicking, Version, cost_function,
-                                cost_function2, path_cost_function, path_cost_function2)
+        additional_eval_measures(dataset, method_name, customTicking, Version, cost_function,
+                                cost_function2, path_cost_function, path_cost_function2,
+                                sampling_method, num_of_dijkstra_backtracking_points)

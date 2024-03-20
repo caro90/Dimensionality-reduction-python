@@ -11,8 +11,8 @@ import os
 # is plotted in a single plot with 3 figures, (classic, piecewise linear d0, alternative d0
 # (where we use an alternative cost definition))
 
-def additional_evalMeasures(dataset_name, method_name, version, cost_function,
-                            writer, path_cost_function, path_cost_function2):
+
+def additional_eval_measures(dataset_name, writer, path_cost_function, path_cost_function2):
 
     datasets_dict1 = load_datasets(dataset_name, path_cost_function)
     datasets_dict2 = load_datasets(dataset_name, path_cost_function2)
@@ -73,10 +73,12 @@ def additional_evalMeasures(dataset_name, method_name, version, cost_function,
 
 if __name__ == '__main__':
 
-    # Method name, use DBSCAN or CommonNN:
+    # Method name:
     method_name = "Kmedoids"
 
     version = "Version 0.5"
+    sampling_method = "d0_distances_sin_method"
+    num_of_dijkstra_backtracking_points = "20 percent dijkstra points - 100 percent backtracking points"
 
     # Select the two cost function to be compared against the classic
     cost_function = "default cost"
@@ -88,14 +90,12 @@ if __name__ == '__main__':
                 "spiral", "swiss_roll2D", "swiss_roll3D", "Umist", "wine"]
 
     # Save location of the figures:
-    if not os.path.exists(f'/home/arch/PycharmProjects/Dimensionality reduction results/{version}/'
-                          f'{cost_function}+{cost_function2}/{method_name}'):
-        os.mkdir(f'/home/arch/PycharmProjects/Dimensionality reduction results/{version}/'
-                 f'{cost_function}+{cost_function2}/{method_name}')
+    save_loc_folder_path = (f'/home/arch/PycharmProjects/Dimensionality reduction results/{version}/{sampling_method}/'
+                            f'{cost_function}+{cost_function2}/{num_of_dijkstra_backtracking_points}/'
+                            f'{method_name}/')
 
     f = open(
-        f'/home/arch/PycharmProjects/Dimensionality reduction results/{version}/{cost_function}+{cost_function2}/'
-        f'{method_name}/kmedoids evaluation experiments', 'w')
+        f'{save_loc_folder_path}/kmedoids evaluation experiments', 'w')
     writer = csv.writer(f)
     writer.writerow(
         ["Dataset name", "Number of labels", "Dimensions", "Number of points",
@@ -113,16 +113,15 @@ if __name__ == '__main__':
 
         # Setting the right path to load the right precomputed datasets
         path_cost_function = f'/home/arch/Matlab/Dimensionality Reduction/mat_files/{version}/' \
-                             f'd0_distances_sin_method/{cost_function}/' \
-                             f'20 percent dijkstra points - 100 percent backtracking points - lambda 10000/' \
+                             f'{sampling_method}/{cost_function}/' \
+                             f'{num_of_dijkstra_backtracking_points} - lambda 10000/' \
                              f'{dataset}_d0_distances.mat'
 
         path_cost_function2 = f'/home/arch/Matlab/Dimensionality Reduction/mat_files/{version}/' \
-                              f'd0_distances_sin_method/{cost_function2}/' \
-                              f'20 percent dijkstra points - 100 percent backtracking points/' \
+                              f'{sampling_method}/{cost_function2}/' \
+                              f'{num_of_dijkstra_backtracking_points}/' \
                               f'{dataset}_d0_distances.mat'
 
-        additional_evalMeasures(dataset, method_name, version, f"{cost_function}+{cost_function2}",
-                                writer, path_cost_function, path_cost_function2)
+        additional_eval_measures(dataset, writer, path_cost_function, path_cost_function2)
 
     f.close()

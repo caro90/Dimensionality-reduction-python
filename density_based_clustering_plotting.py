@@ -48,7 +48,7 @@ def customTickingForXaxis(ax, axesCounterList, d_best, epsilon_values): # check 
             xmax = max(ax[axesCounter].lines[1].get_xdata())
             ax[axesCounter].xaxis.set_major_locator(ticker.FixedLocator([d_best.item(), xmax]))
 
-def plotting_figures_DBSAN_CommonNN(epsilon_values, datasets_dict, datasets_dict_exponential,
+def plotting_figures_DBSAN_CommonNN(epsilon_values, datasets_dict,
                                     db_classic_homogeneity_score,
                                     db_d0_homogeneity_score,
                                     db_d0_alternative_homogeneity_score,
@@ -59,7 +59,8 @@ def plotting_figures_DBSAN_CommonNN(epsilon_values, datasets_dict, datasets_dict
                                     RAND_index_d0_alternative,
                                     V_measure_classic, f1_classic, f1_d0, f1_d0_altenative,
                                     V_measure_d0,
-                                    V_measure_d0_alternative, j, version, cost_function):
+                                    V_measure_d0_alternative, j, cost_function,
+                                    save_loc_folder_path):
     # Plotting
     fig, ax = plt.subplots(1, 2)
 
@@ -104,8 +105,8 @@ def plotting_figures_DBSAN_CommonNN(epsilon_values, datasets_dict, datasets_dict
 
     fig.suptitle("{}-MinPts:{}-{}".format(method_name, j, datasets_dict["dataset_name"]))
 
-    pathName = (f"/home/arch/PycharmProjects/Dimensionality reduction results/{version}/{cost_function}/"
-                f"{method_name}/{dataset_name}/{dataset_name}-{method_name}(Homogeneity,AMI)-{cost_function}-Min_pts {j}")
+    pathName = (f"{save_loc_folder_path}/"
+                f"{dataset_name}-{method_name}(Homogeneity,AMI)-{cost_function}-Min_pts {j}")
     plt.savefig(pathName)
 
     # Creating a figure that can be later changed
@@ -151,11 +152,11 @@ def plotting_figures_DBSAN_CommonNN(epsilon_values, datasets_dict, datasets_dict
     ax[1].set_xlabel("epsilon distances")
 
     if customTicking:
-        customTickingForYaxis(ax, [0, 1])  # *****************
+        customTickingForYaxis(ax, [0, 1])
     fig.suptitle("{}-MinPts:{}-{}".format(method_name, j, datasets_dict["dataset_name"]))
 
-    pathName = (f"/home/arch/PycharmProjects/Dimensionality reduction results/{version}/{cost_function}/"
-                f"{method_name}/{dataset_name}/{dataset_name}-{method_name}(Vmeasure,RAND)-{cost_function}-Min_pts {j}")
+    pathName = (f"{save_loc_folder_path}/"
+                f"{dataset_name}-{method_name}(Vmeasure,RAND)-{cost_function}-Min_pts {j}")
     plt.savefig(pathName)
 
     # Creating a figure that can be later changed
@@ -183,8 +184,8 @@ def plotting_figures_DBSAN_CommonNN(epsilon_values, datasets_dict, datasets_dict
     if customTicking:
         customTickingForYaxis(ax, [0])
 
-    pathName = (f"/home/arch/PycharmProjects/Dimensionality reduction results/{version}/{cost_function}/"
-                f"{method_name}/{dataset_name}/{dataset_name}-{method_name}(f1)-{cost_function}-Min_pts {j}")
+    pathName = (f"{save_loc_folder_path}/"
+                f"{dataset_name}-{method_name}(f1)-{cost_function}-Min_pts {j}")
     plt.savefig(pathName)
 
     # Creating a figure that can be later changed
@@ -200,7 +201,8 @@ def plotting_figures_OPTICS(datasets_dict, db_classic_homogeneity_score, db_d0_h
                             rand_index_d0,
                             rand_index_d0_alternative, v_measure_classic,
                             f1_classic, f1_d0, f1_d0_alternative, v_measure_d0,
-                            v_measure_d0_alternative, min_pts_list, version, cost_function):
+                            v_measure_d0_alternative, min_pts_list, cost_function,
+                            save_loc_folder_path):
 
     # Plotting
     fig, ax = plt.subplots(1, 2)
@@ -246,8 +248,8 @@ def plotting_figures_OPTICS(datasets_dict, db_classic_homogeneity_score, db_d0_h
     if customTicking:
         customTickingForYaxis(ax, [0, 1])
 
-    pathName = (f"/home/arch/PycharmProjects/Dimensionality reduction results/{version}/{cost_function}/"
-                f"{method_name}/{dataset_name}/{dataset_name}-{method_name}(Homogeneity,AMI)-{cost_function}")
+    pathName = (f"{save_loc_folder_path}/"
+                "{dataset_name}-{method_name}(Homogeneity,AMI)-{cost_function}")
     plt.savefig(pathName)
 
     # Creating a figure that can be later changed
@@ -297,7 +299,7 @@ def plotting_figures_OPTICS(datasets_dict, db_classic_homogeneity_score, db_d0_h
     if customTicking:
         customTickingForYaxis(ax, [0, 1])
 
-    pathName = (f"/home/arch/PycharmProjects/Dimensionality reduction results/{version}/{cost_function}/"
+    pathName = (f"{save_loc_folder_path}/"
                 f"{method_name}/{dataset_name}/{dataset_name}-{method_name}(Vmeasure,RAND)-{cost_function}")
     plt.savefig(pathName)
 
@@ -326,8 +328,8 @@ def plotting_figures_OPTICS(datasets_dict, db_classic_homogeneity_score, db_d0_h
     if customTicking:
         customTickingForYaxis(ax, [0])
 
-    pathName = (f"/home/arch/PycharmProjects/Dimensionality reduction results/{version}/{cost_function}/"
-                f"{method_name}/{dataset_name}/{dataset_name}-{method_name}(f1)-{cost_function}")
+    pathName = (f"{save_loc_folder_path}/"
+                f"{dataset_name}-{method_name}(f1)-{cost_function}")
     plt.savefig(pathName)
 
     # Creating a figure that can be later changed
