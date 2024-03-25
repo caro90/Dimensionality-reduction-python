@@ -1,7 +1,9 @@
 import scipy.io
 import numpy as np
 
-def load_datasets(dataset_name, alternative_cost, Version, cost_function):
+# Function to load precomputed datasets along with their precomputed distance maps (euclidean and d0-distance based)
+
+def load_datasets(dataset_name, path_cost_function):
     # Load datasets:
     X = scipy.io.loadmat(f'/home/arch/Matlab/Dimensionality Reduction/mat_files/{dataset_name}.mat')
     data = X.get('X')
@@ -11,12 +13,8 @@ def load_datasets(dataset_name, alternative_cost, Version, cost_function):
                                            f'{dataset_name}_euclidean_distances.mat')
     D = euclidean_distances.get('D')
 
-    if (not alternative_cost):
-        distances = scipy.io.loadmat(f'/home/arch/Matlab/Dimensionality Reduction/mat_files/{Version}/'
-                                 f'd0_distances_sin_method/{cost_function}/lambda 10000/{dataset_name}_d0_distances.mat')
-    else:
-        distances = scipy.io.loadmat(f'/home/arch/Matlab/Dimensionality Reduction/mat_files/{Version}/'
-                                     f'd0_distances_sin_method/{cost_function}/{dataset_name}_d0_distances.mat')
+    distances = scipy.io.loadmat(path_cost_function)
+
     d0_distances = distances.get('d0_distances')
     DMAX = distances.get('DMAX')
     DMAX_avg = distances.get('DMAX_avg')
