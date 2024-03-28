@@ -84,9 +84,9 @@ def color_tick_labels_and_plot_euclid_piecewiselinear_exp(row, column, axesNew, 
     for source_line, target_line in zip(axesOld.axes.lines, axesNew[row][column].lines):
         target_line.set_color(source_line.get_color())
 
-    if row == 0 and column == 4:
+    if row == 0 and column == 3:
         # Position of the legend
-        axesNew[row][column].legend(loc='upper right', bbox_to_anchor=(1.60, 1.05))
+        axesNew[row][column].legend(loc='upper right', bbox_to_anchor=(1.45, 1.05))
 
 
 def density_based_clustering_20figures_plotting(list_of_datasets, saveToFile, load_pickles_loc_path_folder, clustering_method, ylabel, filename):
@@ -268,6 +268,168 @@ def density_based_clustering_5figures_plotting(datasets, path, method_name):
         plt.close('all')
 
 
+def density_based_clustering_20figures_plotting_4metrics(list_of_datasets, saveToFile, load_pickles_loc_path_folder, clustering_method, ylabel, filename):
+
+    counter = 0
+    for datasets in list_of_datasets:
+        row = 0
+        fig, axesNew = plt.subplots(5, 4)
+        #plt.subplots_adjust(wspace=0.1)
+        # fig.tight_layout(h_pad=5)
+
+        for dataset in datasets:
+            counter += 1
+            path_to_load_pickle = (f"{load_pickles_loc_path_folder}/{clustering_method}/{dataset}/Best/"
+                                   f"{dataset}-{clustering_method}-metrics.pkl")
+            if clustering_method == "OPTICS":
+                path_to_load_pickle = (f"{load_pickles_loc_path_folder}/{clustering_method}/{dataset}/"
+                                       f"{dataset}-{clustering_method}-metrics.pkl")
+            with open(path_to_load_pickle, 'rb') as fid:
+                loaded_axes = pickle.load(fid)
+                fid.close()
+
+            # Plot the data from the first subplot in the new figure
+            color_tick_labels_and_plot_euclid_piecewiselinear_exp(row, 0, axesNew, loaded_axes[0])
+            axesNew[row][0].set_ylabel(dataset, fontsize=15)
+
+            color_tick_labels_and_plot_euclid_piecewiselinear_exp(row, 1, axesNew, loaded_axes[1])
+            # Use to avoid overlapping values on the x-axis
+            if dataset == 'coil':
+                axesNew[row][0].xaxis.set_major_locator(MaxNLocator(nbins=5))
+                axesNew[row][1].xaxis.set_major_locator(MaxNLocator(nbins=5))
+                axesNew[row][2].xaxis.set_major_locator(MaxNLocator(nbins=5))
+                axesNew[row][3].xaxis.set_major_locator(MaxNLocator(nbins=5))
+
+            if row == 0:
+                axesNew[row][0].set_title("Homogeneity", fontsize=15)
+            color_tick_labels_and_plot_euclid_piecewiselinear_exp(row, 2, axesNew, loaded_axes[2])
+
+            if row == 0:
+                axesNew[row][1].set_title("AMI", fontsize=15)
+            color_tick_labels_and_plot_euclid_piecewiselinear_exp(row, 3, axesNew, loaded_axes[3])
+
+            if row == 0:
+               axesNew[row][2].set_title("Vmeasure", fontsize=15)
+
+            if row == 0:
+                axesNew[row][3].set_title("RAND", fontsize=15)
+            row += 1
+
+            if row == 4:
+                axesNew[row][2].set_xlabel(f"{ylabel}", fontsize=15)
+                # To move the x-label to the left
+                # To move the x-label to the right
+                axesNew[row][2].xaxis.set_label_coords(-0.10, -0.35)
+
+        if saveToFile:
+            # Storing as a pickle file
+            # Creating a figure that can be later changed
+            with open(f"{load_pickles_loc_path_folder}/{filename}-{counter}.pkl", 'wb') as fid:
+                pickle.dump(axesNew, fid)
+                fid.close()
+
+
+def density_based_clustering_5figures_plotting_4metrics(datasets, path, method_name):
+    # Creating a plot with 5 figures (Homo,Vmeasure,Rand,AMI,F1) for each dataset
+
+    for dataset in datasets:
+        dataset_name = dataset
+
+        p = Path(f"{path}/{method_name}/{dataset_name}/Best/")
+        if method_name == "OPTICS":
+            p = Path(f"{path}/{method_name}/{dataset_name}/")
+
+        # If the intermediate folders do not exist, then they are being created
+        os.makedirs(p, exist_ok=True)
+
+        matching_files_homo_ami = [filename for filename in p.glob('**/*.pkl') if 'Homogeneity' in str(filename)]
+        with open(f'{p}/{matching_files_homo_ami[0].name}', 'rb') as fid:
+            fig_homo_ami = pickle.load(fid)
+            fid.close()
+
+        matching_files_vmeasure_rand = [filename for filename in p.glob('**/*.pkl') if 'Vmeasure' in str(filename)]
+        with open(f'{p}/{matching_files_vmeasure_rand[0].name}', 'rb') as fid:
+            fig_vmeasure_rand = pickle.load(fid)
+            fid.close()
+
+        fileToStore = f"{dataset_name}-{method_name}-4metrics"
+
+        # Create a new figure with two identical subplots
+        fig2, ax = plt.subplots(1, 4)
+        plt.subplots_adjust(wspace=0.30)
+        #fig2.tight_layout(h_pad=5)
+
+        plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=None, hspace=0.90)
+
+        ax[0].plot(fig_homo_ami[0].axes.lines[0].get_xdata(), fig_homo_ami[0].axes.lines[0].get_ydata(), "r--", label="cl")
+        ax[0].plot(fig_homo_ami[0].axes.lines[1].get_xdata(), fig_homo_ami[0].axes.lines[1].get_ydata(), "b--", label="d0")
+        ax[0].plot(fig_homo_ami[0].axes.lines[2].get_xdata(), fig_homo_ami[0].axes.lines[2].get_ydata(), "g--", label="exp-d0")
+
+        # Transfer ticks
+        ax[0].yaxis.set_major_formatter(fig_homo_ami[0].axes.yaxis.get_major_formatter())
+        ax[0].yaxis.set_major_locator(fig_homo_ami[0].axes.yaxis.get_major_locator())
+        # Transfer tick colors
+        for tick_label in fig_homo_ami[0].axes.yaxis.get_ticklabels():
+            ax[0].yaxis.get_major_ticks()[0].label1.set_color(tick_label.get_color())
+        ax[0].set_title("Homogeneity")
+
+        ax[1].plot(fig_homo_ami[1].axes.lines[0].get_xdata(), fig_homo_ami[1].axes.lines[0].get_ydata(), "r--", label="cl")
+        ax[1].plot(fig_homo_ami[1].axes.lines[1].get_xdata(), fig_homo_ami[1].axes.lines[1].get_ydata(), "b--", label="d0")
+        ax[1].plot(fig_homo_ami[1].axes.lines[2].get_xdata(), fig_homo_ami[1].axes.lines[2].get_ydata(), "g--", label="exp-d0")
+
+        # Transfer ticks
+        ax[1].yaxis.set_major_formatter(fig_homo_ami[1].axes.yaxis.get_major_formatter())
+        ax[1].yaxis.set_major_locator(fig_homo_ami[1].axes.yaxis.get_major_locator())
+        # Transfer tick colors
+        for tick_label in fig_homo_ami[1].axes.yaxis.get_ticklabels():
+            ax[1].yaxis.get_major_ticks()[0].label1.set_color(tick_label.get_color())
+        ax[1].set_title("AMI")
+        ax[1].set_xlabel("epsilon distances")
+
+        ax[2].plot(fig_vmeasure_rand[0].axes.lines[0].get_xdata(), fig_vmeasure_rand[0].axes.lines[0].get_ydata(), "r--", label="cl")
+        ax[2].plot(fig_vmeasure_rand[0].axes.lines[1].get_xdata(), fig_vmeasure_rand[0].axes.lines[1].get_ydata(), "b--", label="d0")
+        ax[2].plot(fig_vmeasure_rand[0].axes.lines[2].get_xdata(), fig_vmeasure_rand[0].axes.lines[2].get_ydata(), "g--", label="exp-d0")
+
+        # Transfer ticks
+        ax[2].yaxis.set_major_formatter(fig_vmeasure_rand[0].axes.yaxis.get_major_formatter())
+        ax[2].yaxis.set_major_locator(fig_vmeasure_rand[0].axes.yaxis.get_major_locator())
+        # Transfer tick colors
+        for tick_label in fig_vmeasure_rand[0].axes.yaxis.get_ticklabels():
+            ax[2].yaxis.get_major_ticks()[0].label1.set_color(tick_label.get_color())
+        ax[2].set_title("Vmeasure")
+
+        ax[3].plot(fig_vmeasure_rand[1].axes.lines[0].get_xdata(), fig_vmeasure_rand[1].axes.lines[0].get_ydata(),
+                   linestyle=fig_vmeasure_rand[1].axes.lines[0].get_linestyle(),
+                   label=fig_vmeasure_rand[1].axes.lines[0].get_label(),
+                   color=fig_vmeasure_rand[1].axes.lines[0].get_color())
+        ax[3].plot(fig_vmeasure_rand[1].axes.lines[1].get_xdata(), fig_vmeasure_rand[1].axes.lines[1].get_ydata(),
+                   linestyle=fig_vmeasure_rand[1].axes.lines[1].get_linestyle(),
+                   label=fig_vmeasure_rand[1].axes.lines[1].get_label(),
+                   color=fig_vmeasure_rand[1].axes.lines[1].get_color())
+        ax[3].plot(fig_vmeasure_rand[1].axes.lines[2].get_xdata(), fig_vmeasure_rand[1].axes.lines[2].get_ydata(),
+                   linestyle=fig_vmeasure_rand[1].axes.lines[2].get_linestyle(),
+                   label=fig_vmeasure_rand[1].axes.lines[2].get_label(),
+                   color=fig_vmeasure_rand[1].axes.lines[2].get_color())
+
+        # Transfer ticks
+        ax[3].yaxis.set_major_formatter(fig_vmeasure_rand[1].axes.yaxis.get_major_formatter())
+        ax[3].yaxis.set_major_locator(fig_vmeasure_rand[1].axes.yaxis.get_major_locator())
+        # Transfer tick colors
+        for tick_label in fig_vmeasure_rand[1].axes.yaxis.get_ticklabels():
+            ax[3].yaxis.get_major_ticks()[0].label1.set_color(tick_label.get_color())
+
+        # Position of the legend
+        ax[3].legend(loc='upper left', bbox_to_anchor=(1.05, 1))
+        ax[3].set_title("Vmeasure")
+
+        # Storing as a pickle file
+        path_name = f"{p}/{fileToStore}"
+        # Creating a figure that can be later changed
+        with open(path_name + '.pkl', 'wb') as fid:
+            pickle.dump(ax, fid)
+
+        plt.close('all')
+
 def main():
 
     # Configuration settings:
@@ -291,11 +453,11 @@ def main():
     saveToFile = True
 
     # Creates a 1*5 subplot with results that are stored in previously created pickle files:
-    density_based_clustering_5figures_plotting(datasets, load_pickles_loc_path_folder, clustering_method)
+    density_based_clustering_5figures_plotting_4metrics(datasets, load_pickles_loc_path_folder, clustering_method)
 
     # Creating a 5*5 subplot:
     ylabel = "MinPts"
-    fileNameToStore = f"{clustering_method}20figs-result"
+    fileNameToStore = f"{clustering_method}20figs-result-4metrics"
 
     datasets = [["isolet", "coil", "digits", "genes", "phoneme"],
                 ["aggregation", "breast_cancer", "D31", "diabetes", "flame"],
@@ -304,7 +466,7 @@ def main():
 
 
     if saveToFile:
-        density_based_clustering_20figures_plotting(datasets, saveToFile, load_pickles_loc_path_folder,
+        density_based_clustering_20figures_plotting_4metrics(datasets, saveToFile, load_pickles_loc_path_folder,
                                                     clustering_method, ylabel, fileNameToStore)
 
     # For debugging purposes
