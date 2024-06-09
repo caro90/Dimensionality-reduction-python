@@ -64,11 +64,11 @@ def color_tick_labels_and_plot_euclid_piecewiselinear(row, column, axesNew, axes
 
 def color_tick_labels_and_plot_euclid_piecewiselinear_exp(row, column, axesNew, axesOld):
     axesNew[row][column].plot(axesOld.lines[0].get_xdata(), axesOld.lines[0].get_ydata(),
-                              linestyle=axesOld.lines[0].get_linestyle(), label="Euclidean")
+                              linestyle=axesOld.lines[0].get_linestyle(), label="classic")
     axesNew[row][column].plot(axesOld.lines[1].get_xdata(), axesOld.lines[1].get_ydata(),
-                              linestyle=axesOld.lines[1].get_linestyle(), label="Piecewise linear d0")
+                              linestyle=axesOld.lines[1].get_linestyle(), label="d0")
     axesNew[row][column].plot(axesOld.lines[2].get_xdata(), axesOld.lines[2].get_ydata(),
-                              linestyle=axesOld.lines[2].get_linestyle(), label="Exponential d0")
+                              linestyle=axesOld.lines[2].get_linestyle(), label="exp-d0")
 
     axesNew[row][column].yaxis.set_major_formatter(axesOld.axes.yaxis.get_major_formatter())
     axesNew[row][column].yaxis.set_major_locator(axesOld.axes.yaxis.get_major_locator())
@@ -430,6 +430,244 @@ def density_based_clustering_5figures_plotting_4metrics(datasets, path, method_n
 
         plt.close('all')
 
+
+def density_based_clustering_aggregated_2metrics_per_fig_plotting(list_of_datasets, saveToFile, load_pickles_loc_path_folder, clustering_method, xlabel, filename):
+
+    counter = 0
+    for datasets in list_of_datasets:
+        row = 0
+
+        fig1, axesNew1 = plt.subplots(5, 2)
+
+        fig2, axesNew2 = plt.subplots(5, 2)
+
+        plt.subplots_adjust(wspace=0.1)
+        for dataset in datasets:
+            counter += 1
+
+            if clustering_method == "OPTICS":
+                path_to_load_pickle1 = (f"{load_pickles_loc_path_folder}/{clustering_method}/{dataset}/"
+                                        f"{dataset}-{clustering_method}-2metrics-homo_ami.pkl")
+                path_to_load_pickle2 = (f"{load_pickles_loc_path_folder}/{clustering_method}/{dataset}/"
+                                        f"{dataset}-{clustering_method}-2metrics-vmeasure_rand.pkl")
+            else:
+                path_to_load_pickle1 = (f"{load_pickles_loc_path_folder}/{clustering_method}/{dataset}/Best/"
+                                        f"{dataset}-{clustering_method}-2metrics-homo_ami.pkl")
+                path_to_load_pickle2 = (f"{load_pickles_loc_path_folder}/{clustering_method}/{dataset}/Best/"
+                                        f"{dataset}-{clustering_method}-2metrics-vmeasure_rand.pkl")
+
+            # Handling and plotting figure 1 for Homogeneity and AMI:
+            with open(path_to_load_pickle1, 'rb') as fid:
+                loaded_axes = pickle.load(fid)
+                fid.close()
+
+            # Plot the data from the first subplot in the new figure
+            color_tick_labels_and_plot_euclid_piecewiselinear_exp(row, 0, axesNew1, loaded_axes[0])
+            axesNew1[row][0].set_ylabel(dataset, fontsize=15)
+
+            color_tick_labels_and_plot_euclid_piecewiselinear_exp(row, 1, axesNew1, loaded_axes[1])
+
+            # Use to avoid overlapping values on the x-axis
+            if dataset == 'coil':
+                axesNew1[row][0].xaxis.set_major_locator(MaxNLocator(nbins=5))
+                axesNew1[row][1].xaxis.set_major_locator(MaxNLocator(nbins=5))
+            if row == 0:
+                axesNew1[row][0].set_title("Homogeneity", fontsize=15)
+            if row == 0:
+                axesNew1[row][1].set_title("AMI", fontsize=15)
+                axesNew1[row][1].legend(loc='upper left', bbox_to_anchor=(1.01, 1), fontsize=13)
+            if row == 4:
+                # Add a common x-axis label
+                fig1.text(0.5, 0.08, f"{xlabel}", ha='center', va='center', fontsize=15)
+
+
+            # Handling and plotting figure 2 for Homogeneity and AMI:
+            with open(path_to_load_pickle2, 'rb') as fid:
+                loaded_axes2 = pickle.load(fid)
+                fid.close()
+
+            # Plot the data from the first subplot in the new figure
+            color_tick_labels_and_plot_euclid_piecewiselinear_exp(row, 0, axesNew2, loaded_axes2[0])
+            axesNew2[row][0].set_ylabel(dataset, fontsize=15)
+
+            color_tick_labels_and_plot_euclid_piecewiselinear_exp(row, 1, axesNew2, loaded_axes2[1])
+
+            # Use to avoid overlapping values on the x-axis
+            if dataset == 'coil':
+                axesNew2[row][0].xaxis.set_major_locator(MaxNLocator(nbins=5))
+                axesNew2[row][1].xaxis.set_major_locator(MaxNLocator(nbins=5))
+            if row == 0:
+               axesNew2[row][0].set_title("Vmeasure", fontsize=15)
+            if row == 0:
+                axesNew2[row][1].set_title("RAND", fontsize=15)
+                axesNew2[row][1].legend(loc='upper left', bbox_to_anchor=(1.01, 1), fontsize=13)
+            row += 1
+            if row == 4:
+                # Add a common x-axis label
+                fig2.text(0.5, 0.08, f"{xlabel}", ha='center', va='center', fontsize=15)
+
+        if saveToFile:
+            # Storing as a pickle file
+            # Creating a figure that can be later changed
+            with open(f"{load_pickles_loc_path_folder}/{filename}+'homo-ami'-{counter}.pkl", 'wb') as fid:
+                pickle.dump(axesNew1, fid)
+                fid.close()
+            # Storing in PNG format too:
+            # Custom dimensions and resolution
+            fig_width, fig_height = 15, 15  # Width and height in inches
+            dpi = 300  # Resolution in dots per inch
+
+            # Set the figure size
+            fig1.set_size_inches(fig_width, fig_height)
+            fig1.subplots_adjust(wspace=0.1)  # Adjust wspace for horizontal space, hspace for vertical space
+            fig1.savefig(f"{load_pickles_loc_path_folder}/{filename}+'homo-ami'-{counter}.pkl" + '.png', bbox_inches='tight', dpi=dpi)
+
+            # Storing as a pickle file
+            # Creating a figure that can be later changed
+            with open(f"{load_pickles_loc_path_folder}/{filename}+'vmeasure-rand'-{counter}.pkl", 'wb') as fid:
+                pickle.dump(axesNew2, fid)
+                fid.close()
+            # Storing in PNG format too:
+            # Set the figure size
+            fig2.set_size_inches(fig_width, fig_height)
+            fig2.savefig(f"{load_pickles_loc_path_folder}/{filename}+'vmeasure-rand'-{counter}.pkl" + '.png', bbox_inches='tight', dpi=dpi)
+
+
+def density_based_clustering_2metrics_per_fig_plotting(datasets, path, method_name, xlabel):
+    # Creating a plot with 5 figures (Homo,Vmeasure,Rand,AMI,F1) for each dataset
+
+    for dataset in datasets:
+        dataset_name = dataset
+
+        p = Path(f"{path}/{method_name}/{dataset_name}/Best/")
+        if method_name == "OPTICS":
+            p = Path(f"{path}/{method_name}/{dataset_name}/")
+
+        # If the intermediate folders do not exist, then they are being created
+        os.makedirs(p, exist_ok=True)
+
+        matching_files_homo_ami = [filename for filename in p.glob('**/*.pkl') if 'Homogeneity' in str(filename)]
+        with open(f'{p}/{matching_files_homo_ami[0].name}', 'rb') as fid:
+            fig_homo_ami = pickle.load(fid)
+            fid.close()
+
+        matching_files_vmeasure_rand = [filename for filename in p.glob('**/*.pkl') if 'Vmeasure' in str(filename)]
+        with open(f'{p}/{matching_files_vmeasure_rand[0].name}', 'rb') as fid:
+            fig_vmeasure_rand = pickle.load(fid)
+            fid.close()
+
+        fileToStore1 = f"{dataset_name}-{method_name}-2metrics-homo_ami"
+        fileToStore2 = f"{dataset_name}-{method_name}-2metrics-vmeasure_rand"
+
+        # Creating a new fig for homogeneity and ami:
+        fig2, ax = plt.subplots(1, 2)
+        plt.subplots_adjust(wspace=0.30)
+        #fig2.tight_layout(h_pad=5)
+
+        plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=None, hspace=0.90)
+
+        ax[0].plot(fig_homo_ami[0].axes.lines[0].get_xdata(), fig_homo_ami[0].axes.lines[0].get_ydata(), "r--", label="classic")
+        ax[0].plot(fig_homo_ami[0].axes.lines[1].get_xdata(), fig_homo_ami[0].axes.lines[1].get_ydata(), "b--", label="d0")
+        ax[0].plot(fig_homo_ami[0].axes.lines[2].get_xdata(), fig_homo_ami[0].axes.lines[2].get_ydata(), "g--", label="exp-d0")
+
+        # Transfer ticks
+        ax[0].yaxis.set_major_formatter(fig_homo_ami[0].axes.yaxis.get_major_formatter())
+        ax[0].yaxis.set_major_locator(fig_homo_ami[0].axes.yaxis.get_major_locator())
+        # Transfer tick colors
+        for tick_label in fig_homo_ami[0].axes.yaxis.get_ticklabels():
+            ax[0].yaxis.get_major_ticks()[0].label1.set_color(tick_label.get_color())
+        ax[0].set_title("Homogeneity")
+        ax[0].set_xlabel(f"{xlabel}")
+
+        ax[1].plot(fig_homo_ami[1].axes.lines[0].get_xdata(), fig_homo_ami[1].axes.lines[0].get_ydata(), "r--", label="classic")
+        ax[1].plot(fig_homo_ami[1].axes.lines[1].get_xdata(), fig_homo_ami[1].axes.lines[1].get_ydata(), "b--", label="d0")
+        ax[1].plot(fig_homo_ami[1].axes.lines[2].get_xdata(), fig_homo_ami[1].axes.lines[2].get_ydata(), "g--", label="exp-d0")
+
+        # Transfer ticks
+        ax[1].yaxis.set_major_formatter(fig_homo_ami[1].axes.yaxis.get_major_formatter())
+        ax[1].yaxis.set_major_locator(fig_homo_ami[1].axes.yaxis.get_major_locator())
+
+        # Transfer tick colors
+        for tick_label in fig_homo_ami[1].axes.yaxis.get_ticklabels():
+            ax[1].yaxis.get_major_ticks()[0].label1.set_color(tick_label.get_color())
+        ax[1].set_title("AMI")
+        ax[1].set_xlabel(f"{xlabel}")
+
+        # Position of the legend
+        ax[1].legend(loc='upper left', bbox_to_anchor=(1.00, 1))
+
+        # Storing as a pickle file
+        path_name = f"{p}/{fileToStore1}"
+        # Creating a figure that can be later changed
+        with open(path_name + '.pkl', 'wb') as fid:
+            pickle.dump(ax, fid)
+
+        # Storing in PNG format too:
+        fig2.savefig(path_name + '.png', bbox_inches='tight')
+        plt.close('all')
+
+        # Creating a new fig for Vmeasure and rand:
+        fig3, ax = plt.subplots(1, 2)
+        plt.subplots_adjust(wspace=0.30)
+
+        plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=None, hspace=0.90)
+
+        ax[0].plot(fig_vmeasure_rand[0].axes.lines[0].get_xdata(), fig_vmeasure_rand[0].axes.lines[0].get_ydata(),
+                   "r--", label="cl")
+        ax[0].plot(fig_vmeasure_rand[0].axes.lines[1].get_xdata(), fig_vmeasure_rand[0].axes.lines[1].get_ydata(),
+                   "b--", label="d0")
+        ax[0].plot(fig_vmeasure_rand[0].axes.lines[2].get_xdata(), fig_vmeasure_rand[0].axes.lines[2].get_ydata(),
+                   "g--", label="exp-d0")
+
+        # Transfer ticks
+        ax[0].yaxis.set_major_formatter(fig_vmeasure_rand[0].axes.yaxis.get_major_formatter())
+        ax[0].yaxis.set_major_locator(fig_vmeasure_rand[0].axes.yaxis.get_major_locator())
+        # Transfer tick colors
+        for tick_label in fig_vmeasure_rand[0].axes.yaxis.get_ticklabels():
+            ax[0].yaxis.get_major_ticks()[0].label1.set_color(tick_label.get_color())
+        ax[0].set_title("Vmeasure")
+        ax[0].set_xlabel(f"{xlabel}")
+
+        ax[1].plot(fig_vmeasure_rand[1].axes.lines[0].get_xdata(), fig_vmeasure_rand[1].axes.lines[0].get_ydata(),
+                   "r--", label="cl")
+                   #linestyle=fig_vmeasure_rand[1].axes.lines[0].get_linestyle(),
+                   #label=fig_vmeasure_rand[1].axes.lines[0].get_label(),
+                   #color=fig_vmeasure_rand[1].axes.lines[0].get_color())
+        ax[1].plot(fig_vmeasure_rand[1].axes.lines[1].get_xdata(), fig_vmeasure_rand[1].axes.lines[1].get_ydata(),
+                   "b--", label="d0")
+                   #linestyle=fig_vmeasure_rand[1].axes.lines[1].get_linestyle(),
+                   #label=fig_vmeasure_rand[1].axes.lines[1].get_label(),
+                   #color=fig_vmeasure_rand[1].axes.lines[1].get_color())
+        ax[1].plot(fig_vmeasure_rand[1].axes.lines[2].get_xdata(), fig_vmeasure_rand[1].axes.lines[2].get_ydata(),
+                   "g--", label="exp-d0")
+                   #linestyle=fig_vmeasure_rand[1].axes.lines[2].get_linestyle(),
+                   #label=fig_vmeasure_rand[1].axes.lines[2].get_label(),
+                   #color=fig_vmeasure_rand[1].axes.lines[2].get_color())
+
+        # Transfer ticks
+        ax[1].yaxis.set_major_formatter(fig_vmeasure_rand[1].axes.yaxis.get_major_formatter())
+        ax[1].yaxis.set_major_locator(fig_vmeasure_rand[1].axes.yaxis.get_major_locator())
+        # Transfer tick colors
+        for tick_label in fig_vmeasure_rand[1].axes.yaxis.get_ticklabels():
+            ax[1].yaxis.get_major_ticks()[0].label1.set_color(tick_label.get_color())
+
+        # Position of the legend
+        ax[1].legend(loc='upper left', bbox_to_anchor=(1.00, 1))
+        ax[1].set_title("Rand")
+        ax[1].set_xlabel(f"{xlabel}")
+
+        # Storing as a pickle file
+        path_name = f"{p}/{fileToStore2}"
+        # Creating a figure that can be later changed
+        with open(path_name + '.pkl', 'wb') as fid:
+            pickle.dump(ax, fid)
+
+        # Storing in PNG format too:
+        fig3.savefig(path_name + '.png', bbox_inches='tight')
+
+        plt.close('all')
+
+
 def main():
 
     # Configuration settings:
@@ -437,6 +675,11 @@ def main():
     # Method name can be:
     # DBSCAN or CommonNN or OPTICS
     clustering_method = "OPTICS"
+
+    # if OPTICS set to: MinPts
+    # if DBSCAN or CommonNN set to Epsilon distances
+    xlabel = "MinPts"
+
     version = "Version 0.5"
     sampling_function = "d0_distances_sin_method"
     cost_function = "default cost+cost 4"
@@ -446,28 +689,33 @@ def main():
                 "moons_1000", "olivetti", "pathbased", "phoneme", "R15",
                 "spiral", "swiss_roll2D", "swiss_roll3D", "Umist", "wine"]
 
+
     load_pickles_loc_path_folder = (f"/home/arch/PycharmProjects/Dimensionality reduction results/{version}/"
                                     f"{sampling_function}/{cost_function}/20 percent dijkstra points - 100 percent backtracking points")
 
-    openFile = True
+    openFile = False
     saveToFile = True
 
-    # Creates a 1*5 subplot with results that are stored in previously created pickle files:
-    density_based_clustering_5figures_plotting_4metrics(datasets, load_pickles_loc_path_folder, clustering_method)
+    calculateFirstSublots = True
+    calculateAggregatedSublots = True
 
-    # Creating a 5*5 subplot:
-    ylabel = "MinPts"
-    fileNameToStore = f"{clustering_method}20figs-result-4metrics"
+    if calculateFirstSublots:
+        # Creates a subplot with results that are stored in a pickle:
+        density_based_clustering_2metrics_per_fig_plotting(datasets, load_pickles_loc_path_folder, clustering_method,
+                                                           xlabel)
 
-    datasets = [["isolet", "coil", "digits", "genes", "phoneme"],
-                ["aggregation", "breast_cancer", "D31", "diabetes", "flame"],
-                ["iris", "moons_1000", "olivetti", "pathbased", "R15"],
-                ["spiral", "swiss_roll2D", "swiss_roll3D", "Umist", "wine"]]
+    if calculateAggregatedSublots:
+        # Creating an aggregated subplot with multiple datasets (rows) and multiple metrics (columns):
+        fileNameToStore = f"{clustering_method}-aggregated-2metrics_per_fig"
 
+        datasets = [["isolet", "coil", "digits", "genes", "phoneme"],
+                    ["aggregation", "breast_cancer", "D31", "diabetes", "flame"],
+                    ["iris", "moons_1000", "olivetti", "pathbased", "R15"],
+                    ["spiral", "swiss_roll2D", "swiss_roll3D", "Umist", "wine"]]
 
-    if saveToFile:
-        density_based_clustering_20figures_plotting_4metrics(datasets, saveToFile, load_pickles_loc_path_folder,
-                                                    clustering_method, ylabel, fileNameToStore)
+        density_based_clustering_aggregated_2metrics_per_fig_plotting(datasets, saveToFile,
+                                                                      load_pickles_loc_path_folder,
+                                                                      clustering_method, xlabel, fileNameToStore)
 
     # For debugging purposes
     if openFile:

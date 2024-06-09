@@ -249,7 +249,7 @@ def plotting_figures_OPTICS(datasets_dict, db_classic_homogeneity_score, db_d0_h
         customTickingForYaxis(ax, [0, 1])
 
     pathName = (f"{save_loc_folder_path}/"
-                "{dataset_name}-{method_name}(Homogeneity,AMI)-{cost_function}")
+                f"{dataset_name}-{method_name}(Homogeneity,AMI)-{cost_function}")
     plt.savefig(pathName)
 
     # Creating a figure that can be later changed
@@ -300,7 +300,7 @@ def plotting_figures_OPTICS(datasets_dict, db_classic_homogeneity_score, db_d0_h
         customTickingForYaxis(ax, [0, 1])
 
     pathName = (f"{save_loc_folder_path}/"
-                f"{method_name}/{dataset_name}/{dataset_name}-{method_name}(Vmeasure,RAND)-{cost_function}")
+                f"{dataset_name}-{method_name}(Vmeasure,RAND)-{cost_function}")
     plt.savefig(pathName)
 
     # Creating a figure that can be later changed

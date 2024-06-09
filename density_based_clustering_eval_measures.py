@@ -98,7 +98,7 @@ def additional_eval_measures(dataset_name, method_name, customTicking, version, 
                 db_d0_alternative_labels_pred = db_d0_alternative.labels_
 
             if (len(set(db_classic_labels_pred)) >= 2 and
-                len(set(db_d0_labels_pred)) and
+                len(set(db_d0_labels_pred)) >= 2 and
                 len(set(db_d0_alternative_labels_pred)) >= 2):
                 # Silhouette Coefficient is only defined if number of labels is 2 <= n_labels <= n_samples - 1.
 
@@ -180,7 +180,7 @@ if __name__ == '__main__':
 
     # Select the two cost function to be compared against the classic
     cost_function = "default cost"
-    cost_function2 = "cost 4"
+    cost_function2 = "cost 3"
 
     # Enable/Disable customTicking on the Y-axis
     customTicking = True

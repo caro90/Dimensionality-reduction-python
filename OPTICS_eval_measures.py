@@ -149,7 +149,7 @@ if __name__ == '__main__':
 
     # Select the two cost function to be compared against the classic
     cost_function = "default cost"
-    cost_function2 = "cost 4"
+    cost_function2 = "cost 3"
 
     # Enable/Disable customTicking on the Y-axis
     customTicking = True

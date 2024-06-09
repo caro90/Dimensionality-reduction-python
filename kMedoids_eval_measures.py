@@ -82,7 +82,7 @@ if __name__ == '__main__':
 
     # Select the two cost function to be compared against the classic
     cost_function = "default cost"
-    cost_function2 = "cost 4"
+    cost_function2 = "cost 3"
 
     datasets = ["aggregation", "breast_cancer", "coil", "D31", "diabetes",
                 "digits", "flame", "genes", "iris", "isolet",
@@ -92,8 +92,8 @@ if __name__ == '__main__':
     # Save location of the figures:
     save_loc_folder_path = (f'/home/arch/PycharmProjects/Dimensionality reduction results/{version}/{sampling_method}/'
                             f'{cost_function}+{cost_function2}/{num_of_dijkstra_backtracking_points}/'
-                            f'{method_name}/')
-
+                            f'{method_name}')
+    os.makedirs(save_loc_folder_path, exist_ok=True)
     f = open(
         f'{save_loc_folder_path}/kmedoids evaluation experiments', 'w')
     writer = csv.writer(f)
