@@ -5,11 +5,11 @@ import numpy as np
 
 def load_datasets(dataset_name, path_cost_function):
     # Load datasets:
-    X = scipy.io.loadmat(f'/home/arch/Matlab/Dimensionality Reduction/mat_files/{dataset_name}.mat')
+    X = scipy.io.loadmat(f'/home/arch/My_Data/Datasets/Dimensionality Reduction/mat_files/{dataset_name}.mat')
     data = X.get('X')
     labels = X.get('labels')
 
-    euclidean_distances = scipy.io.loadmat(f'/home/arch/Matlab/Dimensionality Reduction/mat_files/'
+    euclidean_distances = scipy.io.loadmat(f'/home/arch/My_Data/Datasets/Dimensionality Reduction/mat_files/'
                                            f'{dataset_name}_euclidean_distances.mat')
     D = euclidean_distances.get('D')
 
